@@ -1,0 +1,2650 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Webzo</title>
+
+<style>
+
+/* =========================
+   WEBZO PERFORMANCE EDITION
+========================= */
+
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+:root{
+    --blue:#00aaff;
+    --pink:#ff1493;
+    --purple:#784cff;
+    --bg:#05050b;
+    --card:#10111ddd;
+    --border:#ffffff12;
+}
+
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    margin:0;
+    min-height:100vh;
+    background:
+        radial-gradient(
+            circle at 5% 5%,
+            rgba(0,170,255,.12),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 95% 95%,
+            rgba(255,20,147,.10),
+            transparent 28%
+        ),
+        var(--bg);
+    color:#fff;
+    font-family:Arial,Tahoma,sans-serif;
+    overflow-x:hidden;
+}
+
+/* LIGHT NEON - optimized */
+
+body::before,
+body::after{
+    content:"";
+    position:fixed;
+    width:260px;
+    height:260px;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:-1;
+    opacity:.13;
+    will-change:transform;
+}
+
+body::before{
+    background:var(--blue);
+    top:-130px;
+    left:-110px;
+    animation:blueMove 10s ease-in-out infinite alternate;
+}
+
+body::after{
+    background:var(--pink);
+    right:-110px;
+    bottom:-130px;
+    animation:pinkMove 12s ease-in-out infinite alternate;
+}
+
+@keyframes blueMove{
+    from{transform:translate3d(0,0,0)}
+    to{transform:translate3d(70px,50px,0)}
+}
+
+@keyframes pinkMove{
+    from{transform:translate3d(0,0,0)}
+    to{transform:translate3d(-60px,-50px,0)}
+}
+
+/* APP */
+
+.app{
+    width:100%;
+    max-width:680px;
+    margin:auto;
+    padding:10px 15px 105px;
+}
+
+/* TOP */
+
+.top{
+    height:62px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    position:sticky;
+    top:0;
+    z-index:20;
+
+    background:rgba(5,5,11,.88);
+    border-bottom:1px solid rgba(255,255,255,.035);
+
+    /* lighter than backdrop-filter */
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-weight:900;
+    letter-spacing:2px;
+}
+
+.logo{
+    width:42px;
+    height:42px;
+
+    display:grid;
+    place-items:center;
+
+    border-radius:14px;
+
+    background:linear-gradient(
+        135deg,
+        var(--blue),
+        var(--pink)
+    );
+
+    box-shadow:
+        0 0 18px rgba(0,170,255,.28),
+        0 0 18px rgba(255,20,147,.20);
+}
+
+.badge{
+    padding:7px 11px;
+    border-radius:20px;
+
+    background:rgba(255,20,147,.07);
+    border:1px solid rgba(255,20,147,.28);
+
+    color:#ff75c4;
+    font-size:11px;
+    font-weight:bold;
+}
+
+/* HERO */
+
+.hero{
+    padding:25px 5px;
+    animation:fadeUp .45s ease both;
+}
+
+.hero small{
+    color:#777;
+}
+
+.hero h1{
+    font-size:35px;
+    line-height:1.3;
+    margin:8px 0;
+}
+
+.gradient{
+    background:linear-gradient(
+        90deg,
+        var(--blue),
+        #fff,
+        var(--pink)
+    );
+
+    -webkit-background-clip:text;
+    background-clip:text;
+
+    color:transparent;
+}
+
+.hero p{
+    color:#888;
+    line-height:1.8;
+}
+
+/* CARD */
+
+.card{
+    margin-top:15px;
+    padding:20px;
+
+    border-radius:24px;
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.35);
+
+    animation:fadeUp .5s ease both;
+}
+
+/* TITLE */
+
+.titleRow{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.titleRow h2{
+    margin:0;
+    font-size:18px;
+}
+
+.titleRow span{
+    color:#777;
+    font-size:10px;
+}
+
+/* GRID */
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:11px;
+}
+
+.quick{
+    padding:18px 13px;
+
+    border-radius:18px;
+
+    background:#0b0c15;
+
+    border:1px solid #292b40;
+
+    cursor:pointer;
+
+    transition:
+        transform .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
+
+    user-select:none;
+}
+
+.quick:hover{
+    transform:translateY(-2px);
+    border-color:#00aaff66;
+    box-shadow:0 0 18px rgba(0,170,255,.10);
+}
+
+.quick:active{
+    transform:scale(.98);
+}
+
+.quick b{
+    display:block;
+    margin-top:8px;
+}
+
+.quick small{
+    color:#777;
+}
+
+/* INPUTS */
+
+label{
+    display:block;
+    color:#ddd;
+    font-size:13px;
+    margin:15px 0 8px;
+}
+
+textarea,
+input,
+select{
+    width:100%;
+
+    padding:15px;
+
+    border-radius:15px;
+
+    background:#080912;
+
+    color:#fff;
+
+    border:1px solid #292b40;
+
+    outline:0;
+
+    font-size:14px;
+
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease;
+}
+
+textarea{
+    min-height:105px;
+    resize:none;
+}
+
+textarea:focus,
+input:focus,
+select:focus{
+    border-color:var(--blue);
+
+    box-shadow:
+        0 0 12px rgba(0,170,255,.12);
+}
+
+/* BUTTON */
+
+button{
+    width:100%;
+
+    padding:15px;
+
+    border:0;
+
+    border-radius:16px;
+
+    margin-top:15px;
+
+    color:#fff;
+
+    font-weight:bold;
+
+    font-size:15px;
+
+    cursor:pointer;
+
+    background:
+        linear-gradient(
+            100deg,
+            #008cff,
+            #784cff,
+            #ff1493
+        );
+
+    box-shadow:
+        0 0 18px rgba(0,140,255,.18);
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+button:active{
+    transform:scale(.97);
+}
+
+button:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+    transform:none;
+}
+
+/* STATS */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+}
+
+.stat{
+    text-align:center;
+    padding:14px 4px;
+
+    border-radius:17px;
+
+    background:#0b0c15;
+
+    border:1px solid #25263a;
+}
+
+.stat b{
+    font-size:20px;
+}
+
+.stat small{
+    display:block;
+    color:#777;
+    margin-top:5px;
+}
+
+/* LOADING */
+
+#building{
+    display:none;
+    text-align:center;
+    padding:20px;
+}
+
+.loader{
+    width:48px;
+    height:48px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    border:3px solid #222;
+
+    border-top-color:var(--blue);
+    border-right-color:var(--pink);
+
+    animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+
+/* RESULT */
+
+#result{
+    display:none;
+}
+
+/* PREVIEW */
+
+.preview{
+    background:#f5f6fa;
+    color:#111;
+
+    border-radius:18px;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.20);
+}
+
+.siteNav{
+    padding:14px 17px;
+
+    background:#11121d;
+
+    color:#fff;
+
+    display:flex;
+    justify-content:space-between;
+}
+
+.siteLogo{
+    color:var(--blue);
+    font-weight:bold;
+}
+
+.siteHero{
+    padding:45px 20px;
+
+    text-align:center;
+
+    color:#fff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #101b35,
+            #29102e
+        );
+}
+
+.siteHero h2{
+    font-size:26px;
+}
+
+.siteHero p{
+    color:#bbb;
+}
+
+.siteButton{
+    display:inline-block;
+
+    margin-top:10px;
+
+    padding:11px 20px;
+
+    border-radius:10px;
+
+    color:#fff;
+
+    background:
+        linear-gradient(
+            90deg,
+            #008cff,
+            #ff1493
+        );
+}
+
+.siteContent{
+    padding:22px;
+}
+
+.siteFeature{
+    padding:14px;
+    margin-top:9px;
+
+    border:1px solid #eee;
+
+    border-radius:12px;
+
+    background:#fff;
+}
+
+/* ACTIONS */
+
+.actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:12px;
+}
+
+.secondary{
+    background:#10111d;
+    border:1px solid #303248;
+}
+
+/* PRO */
+
+.pro{
+    border-color:#ff149355;
+
+    background:
+        radial-gradient(
+            circle at 100% 0,
+            rgba(255,20,147,.10),
+            transparent 38%
+        ),
+        #11101b;
+}
+
+.pro h2{
+    margin:12px 0;
+}
+
+.pro p{
+    color:#999;
+    line-height:1.8;
+}
+
+.features{
+    display:grid;
+    gap:9px;
+    color:#ccc;
+    font-size:13px;
+}
+
+.feature span{
+    color:#48bfff;
+}
+
+/* EDITOR */
+
+.editor{
+    display:none;
+}
+
+.editorTools{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:9px;
+}
+
+.tool{
+    padding:13px;
+
+    border-radius:15px;
+
+    background:#0b0c15;
+
+    border:1px solid #292b40;
+
+    cursor:pointer;
+
+    transition:
+        border-color .18s ease,
+        transform .18s ease;
+}
+
+.tool:hover{
+    border-color:#00aaff66;
+}
+
+.tool:active{
+    transform:scale(.98);
+}
+
+.locked{
+    opacity:.48;
+}
+
+.editorPreview{
+    margin-top:15px;
+}
+
+/* PROJECTS */
+
+#projects{
+    display:none;
+}
+
+.projectList{
+    display:grid;
+    gap:10px;
+}
+
+.project{
+    padding:15px;
+
+    border-radius:17px;
+
+    background:#0b0c15;
+
+    border:1px solid #292b40;
+
+    cursor:pointer;
+
+    transition:.18s;
+}
+
+.project:hover{
+    border-color:#00aaff66;
+    transform:translateY(-2px);
+}
+
+.projectTop{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+}
+
+.projectName{
+    font-weight:bold;
+}
+
+.projectInfo{
+    color:#777;
+    font-size:11px;
+    margin-top:6px;
+}
+
+.projectActions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:10px;
+}
+
+.deleteBtn{
+    background:#17101a;
+    border:1px solid #ff149344;
+}
+
+/* EMPTY */
+
+.empty{
+    text-align:center;
+    padding:30px 10px;
+    color:#777;
+}
+
+.emptyIcon{
+    font-size:40px;
+    margin-bottom:10px;
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+
+    position:fixed;
+    inset:0;
+
+    z-index:100;
+
+    background:rgba(0,0,0,.72);
+
+    backdrop-filter:blur(5px);
+    -webkit-backdrop-filter:blur(5px);
+
+    align-items:flex-end;
+}
+
+.modalBox{
+    width:min(680px,100%);
+
+    padding:24px;
+
+    background:#11121d;
+
+    border:1px solid #303248;
+
+    border-radius:28px 28px 0 0;
+
+    animation:modalUp .22s ease both;
+}
+
+.close{
+    width:38px;
+    height:38px;
+
+    padding:0;
+    margin:0 0 10px;
+
+    float:left;
+
+    border-radius:50%;
+
+    background:#202130;
+}
+
+@keyframes modalUp{
+    from{
+        transform:translateY(50px);
+        opacity:.5;
+    }
+
+    to{
+        transform:translateY(0);
+        opacity:1;
+    }
+}
+
+/* BOTTOM */
+
+.bottom{
+    position:fixed;
+
+    bottom:
+        calc(12px + env(safe-area-inset-bottom));
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    width:min(
+        650px,
+        calc(100% - 24px)
+    );
+
+    padding:8px;
+
+    display:grid;
+
+    grid-template-columns:repeat(5,1fr);
+
+    background:rgba(12,13,23,.94);
+
+    border:1px solid #292b40;
+
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+
+    border-radius:22px;
+
+    z-index:50;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.45);
+}
+
+.nav{
+    text-align:center;
+
+    padding:8px 2px;
+
+    border-radius:15px;
+
+    cursor:pointer;
+
+    user-select:none;
+}
+
+.nav.active{
+    background:#ffffff08;
+}
+
+.nav div:first-child{
+    font-size:19px;
+}
+
+.nav small{
+    color:#777;
+    font-size:9px;
+}
+
+/* FOOTER */
+
+.footer{
+    text-align:center;
+    color:#444;
+    padding:30px;
+    font-size:10px;
+}
+
+/* ANIMATION */
+
+@keyframes fadeUp{
+    from{
+        opacity:0;
+        transform:translate3d(0,12px,0);
+    }
+
+    to{
+        opacity:1;
+        transform:translate3d(0,0,0);
+    }
+}
+
+/* MOBILE OPTIMIZATION */
+
+@media(max-width:480px){
+
+    .app{
+        padding-left:11px;
+        padding-right:11px;
+    }
+
+    .hero h1{
+        font-size:31px;
+    }
+
+    .card{
+        padding:17px;
+        border-radius:21px;
+    }
+
+    .grid{
+        gap:8px;
+    }
+
+    .quick{
+        padding:15px 11px;
+    }
+
+}
+
+/* REDUCE MOTION */
+
+@media(prefers-reduced-motion:reduce){
+
+    *,
+    *::before,
+    *::after{
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+        scroll-behavior:auto !important;
+        transition-duration:.01ms !important;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- TOP -->
+
+<div class="top">
+
+    <div class="brand">
+
+        <div class="logo">W</div>
+
+        WEBZO
+
+    </div>
+
+    <div class="badge" id="planBadge">
+        FREE
+    </div>
+
+</div>
+
+
+<!-- HERO -->
+
+<div class="hero">
+
+    <small>
+        خوش اومدی 👋
+    </small>
+
+    <h1>
+
+        ایده‌تو بده،
+        <br>
+
+        <span class="gradient">
+            سایتتو بساز.
+        </span>
+
+    </h1>
+
+    <p>
+        سایت خودت رو بساز، ویرایش کن و پروژه‌هات رو ذخیره کن.
+    </p>
+
+</div>
+
+
+<!-- QUICK -->
+
+<div class="card">
+
+    <div class="titleRow">
+
+        <h2>
+            ⚡ دسترسی سریع
+        </h2>
+
+        <span>
+            WEBZO
+        </span>
+
+    </div>
+
+    <div class="grid">
+
+        <div class="quick" onclick="goCreate()">
+            <div>✨</div>
+            <b>ساخت سایت</b>
+            <small>پروژه جدید</small>
+        </div>
+
+        <div class="quick" onclick="openAI()">
+            <div>🧠</div>
+            <b>Webzo AI</b>
+            <small>ایده‌پرداز Pro</small>
+        </div>
+
+        <div class="quick" onclick="showProjects()">
+            <div>🌐</div>
+            <b>سایت‌های من</b>
+            <small>پروژه‌های ذخیره‌شده</small>
+        </div>
+
+        <div class="quick" onclick="openPro()">
+            <div>👑</div>
+            <b>Webzo Pro</b>
+            <small>امکانات بیشتر</small>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- STATS -->
+
+<div class="card">
+
+    <div class="stats">
+
+        <div class="stat">
+
+            <b id="daily">
+                0/1
+            </b>
+
+            <small>
+                ساخت امروز
+            </small>
+
+        </div>
+
+        <div class="stat">
+
+            <b id="projectCount">
+                0
+            </b>
+
+            <small>
+                پروژه
+            </small>
+
+        </div>
+
+        <div class="stat">
+
+            <b id="planStat">
+                FREE
+            </b>
+
+            <small>
+                پلن فعلی
+            </small>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- CREATE -->
+
+<div class="card" id="create">
+
+    <div class="titleRow">
+
+        <h2>
+            🚀 ساخت سایت
+        </h2>
+
+        <span>
+            FREE • 1/DAY
+        </span>
+
+    </div>
+
+    <label>
+        💡 سایتت درباره چیه؟
+    </label>
+
+    <textarea
+        id="idea"
+        placeholder="مثلاً یک فروشگاه لباس اسپرت با طراحی لوکس..."
+    ></textarea>
+
+
+    <label>
+        🎨 سبک سایت
+    </label>
+
+    <select id="style">
+
+        <option>
+            Dark Neon
+        </option>
+
+        <option>
+            Luxury
+        </option>
+
+        <option>
+            Minimal
+        </option>
+
+        <option>
+            Gaming
+        </option>
+
+        <option>
+            Business
+        </option>
+
+    </select>
+
+
+    <label>
+        🌈 رنگ اصلی
+    </label>
+
+    <select id="color">
+
+        <option>
+            آبی + صورتی نئونی
+        </option>
+
+        <option>
+            بنفش + آبی
+        </option>
+
+        <option>
+            قرمز + مشکی
+        </option>
+
+        <option>
+            سبز نئونی
+        </option>
+
+    </select>
+
+
+    <button id="buildButton" onclick="buildSite()">
+        ⚡ ساخت سایت
+    </button>
+
+
+    <div id="building">
+
+        <div class="loader"></div>
+
+        <p id="loadingText">
+            در حال تحلیل ایده...
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- RESULT -->
+
+<div class="card" id="result">
+
+    <div class="titleRow">
+
+        <h2>
+            ✨ سایت شما
+        </h2>
+
+        <span>
+            LIVE PREVIEW
+        </span>
+
+    </div>
+
+
+    <div class="preview" id="preview">
+
+        <div class="siteNav">
+
+            <div
+                class="siteLogo"
+                id="pLogo"
+            >
+                WEBZO
+            </div>
+
+            <div>
+                ☰
+            </div>
+
+        </div>
+
+
+        <div class="siteHero">
+
+            <h2 id="pTitle">
+                Website
+            </h2>
+
+            <p id="pDesc">
+                سایت ساخته‌شده با Webzo
+            </p>
+
+            <div
+                class="siteButton"
+                id="pButton"
+            >
+                شروع کنید
+            </div>
+
+        </div>
+
+
+        <div class="siteContent">
+
+            <h3 id="pAboutTitle">
+                درباره ما
+            </h3>
+
+            <p id="pAbout">
+                سایت شما با Webzo ساخته شده است.
+            </p>
+
+            <div class="siteFeature">
+                ⚡ طراحی مدرن
+            </div>
+
+            <div class="siteFeature">
+                📱 مناسب موبایل
+            </div>
+
+            <div class="siteFeature">
+                ✨ طراحی حرفه‌ای
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="actions">
+
+        <button
+            class="secondary"
+            onclick="openEditor()"
+        >
+            ✏️ ویرایش سایت
+        </button>
+
+        <button
+            class="secondary"
+            onclick="saveProject()"
+        >
+            💾 ذخیره
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- EDITOR -->
+
+<div class="card editor" id="editor">
+
+    <div class="titleRow">
+
+        <h2>
+            ✏️ ویرایشگر Webzo
+        </h2>
+
+        <span>
+            EDITOR
+        </span>
+
+    </div>
+
+
+    <div class="editorTools">
+
+        <div
+            class="tool"
+            onclick="editTitle()"
+        >
+            📝 تغییر متن
+        </div>
+
+        <div
+            class="tool"
+            onclick="changeColor()"
+        >
+            🎨 تغییر رنگ
+        </div>
+
+        <div
+            class="tool locked"
+            onclick="proFeature('افزودن بخش')"
+        >
+            🧩 افزودن بخش 👑
+        </div>
+
+        <div
+            class="tool locked"
+            onclick="proFeature('منوی سفارشی')"
+        >
+            🧭 منوی سفارشی 👑
+        </div>
+
+        <div
+            class="tool locked"
+            onclick="proFeature('انیمیشن حرفه‌ای')"
+        >
+            ✨ انیمیشن 👑
+        </div>
+
+        <div
+            class="tool locked"
+            onclick="proFeature('ویرایش با AI')"
+        >
+            🧠 ویرایش با AI 👑
+        </div>
+
+    </div>
+
+
+    <div class="editorPreview">
+
+        <div id="editorPreview"></div>
+
+    </div>
+
+
+    <button onclick="saveProject()">
+        💾 ذخیره تغییرات
+    </button>
+
+</div>
+
+
+<!-- PROJECTS -->
+
+<div class="card" id="projects">
+
+    <div class="titleRow">
+
+        <h2>
+            🌐 سایت‌های من
+        </h2>
+
+        <span id="projectTotal">
+            0 PROJECTS
+        </span>
+
+    </div>
+
+
+    <div
+        class="projectList"
+        id="projectList"
+    ></div>
+
+</div>
+
+
+<!-- AI -->
+
+<div class="card pro">
+
+    <div class="badge">
+        👑 PRO
+    </div>
+
+    <h2>
+        🧠 Webzo AI
+    </h2>
+
+    <p>
+        ایده‌ات رو بگو تا برای اسم، طراحی، امکانات و ساختار سایت پیشنهاد بده.
+    </p>
+
+    <button onclick="openAI()">
+        ✨ استفاده از Webzo AI
+    </button>
+
+</div>
+
+
+<!-- PRO -->
+
+<div class="card pro">
+
+    <div class="badge">
+        👑 WEBZO PRO
+    </div>
+
+    <h2>
+        سایت حرفه‌ای بساز.
+    </h2>
+
+    <p>
+        نسخه Pro محدودیت‌های نسخه رایگان را حذف می‌کند و ابزارهای حرفه‌ای را باز می‌کند.
+    </p>
+
+
+    <div class="features">
+
+        <div class="feature">
+            <span>✓</span>
+            ساخت سایت نامحدود
+        </div>
+
+        <div class="feature">
+            <span>✓</span>
+            دامنه اختصاصی
+        </div>
+
+        <div class="feature">
+            <span>✓</span>
+            منوی سفارشی
+        </div>
+
+        <div class="feature">
+            <span>✓</span>
+            صفحات بیشتر
+        </div>
+
+        <div class="feature">
+            <span>✓</span>
+            فروشگاه
+        </div>
+
+        <div class="feature">
+            <span>✓</span>
+            انیمیشن حرفه‌ای
+        </div>
+
+        <div class="feature">
+            <span>✓</span>
+            SEO
+        </div>
+
+        <div class="feature">
+            <span>✓</span>
+            Webzo AI
+        </div>
+
+    </div>
+
+
+    <button onclick="openPro()">
+        👑 ارتقا به Pro
+    </button>
+
+</div>
+
+
+<div class="footer">
+    WEBZO ✦ BUILD THE WEB
+</div>
+
+</div>
+
+
+<!-- BOTTOM -->
+
+<div class="bottom">
+
+    <div
+        class="nav active"
+        onclick="home(this)"
+    >
+        <div>⌂</div>
+        <small>خانه</small>
+    </div>
+
+
+    <div
+        class="nav"
+        onclick="goCreate(this)"
+    >
+        <div>✨</div>
+        <small>ساخت</small>
+    </div>
+
+
+    <div
+        class="nav"
+        onclick="openAI()"
+    >
+        <div>🧠</div>
+        <small>AI</small>
+    </div>
+
+
+    <div
+        class="nav"
+        onclick="showProjects()"
+    >
+        <div>🌐</div>
+        <small>سایت‌ها</small>
+    </div>
+
+
+    <div
+        class="nav"
+        onclick="openPro()"
+    >
+        <div>👑</div>
+        <small>Pro</small>
+    </div>
+
+</div>
+
+
+<!-- PRO MODAL -->
+
+<div
+    class="modal"
+    id="proModal"
+>
+
+    <div class="modalBox">
+
+        <button
+            class="close"
+            onclick="closeModal('proModal')"
+        >
+            ×
+        </button>
+
+
+        <div class="badge">
+            👑 WEBZO PRO
+        </div>
+
+
+        <h2>
+            Webzo رو آزاد کن.
+        </h2>
+
+
+        <p style="color:#999;line-height:1.8">
+            با Pro سایت‌های نامحدود و ابزارهای حرفه‌ای را باز کن.
+        </p>
+
+
+        <div class="features">
+
+            <div class="feature">
+                <span>✓</span>
+                ساخت نامحدود
+            </div>
+
+            <div class="feature">
+                <span>✓</span>
+                دامنه اختصاصی
+            </div>
+
+            <div class="feature">
+                <span>✓</span>
+                منوی سفارشی
+            </div>
+
+            <div class="feature">
+                <span>✓</span>
+                صفحات نامحدود
+            </div>
+
+            <div class="feature">
+                <span>✓</span>
+                Webzo AI
+            </div>
+
+            <div class="feature">
+                <span>✓</span>
+                خروجی بدون واترمارک
+            </div>
+
+        </div>
+
+
+        <button onclick="fakeUpgrade()">
+            💳 ارتقا به Webzo Pro
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- AI MODAL -->
+
+<div
+    class="modal"
+    id="aiModal"
+>
+
+    <div class="modalBox">
+
+        <button
+            class="close"
+            onclick="closeModal('aiModal')"
+        >
+            ×
+        </button>
+
+
+        <div class="badge">
+            🧠 PRO AI
+        </div>
+
+
+        <h2>
+            چه سایتی بسازیم؟
+        </h2>
+
+
+        <p style="color:#999">
+            ایده‌ات رو بنویس.
+        </p>
+
+
+        <textarea
+            id="aiInput"
+            placeholder="مثلاً یک سایت خاص برای ماشین‌های ایرانی..."
+        ></textarea>
+
+
+        <button onclick="generateAI()">
+            ✨ ایده بده
+        </button>
+
+
+        <div
+            id="aiResult"
+            style="
+            display:none;
+            margin-top:15px;
+            padding:16px;
+            border-radius:16px;
+            background:#080912;
+            border:1px solid #292b40;
+            color:#ccc;
+            line-height:1.9"
+        ></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================
+   WEBZO CORE
+===================================== */
+
+let currentProject = null;
+
+let isBuilding = false;
+
+
+/* =====================================
+   STORAGE
+===================================== */
+
+function getProjects(){
+
+    try{
+
+        return JSON.parse(
+            localStorage.getItem("webzoProjects") || "[]"
+        );
+
+    }catch(e){
+
+        return [];
+
+    }
+
+}
+
+
+function saveProjects(projects){
+
+    localStorage.setItem(
+        "webzoProjects",
+        JSON.stringify(projects)
+    );
+
+}
+
+
+/* =====================================
+   DAILY LIMIT
+===================================== */
+
+function getDaily(){
+
+    const today =
+        new Date().toDateString();
+
+    const savedDate =
+        localStorage.getItem("webzoDate");
+
+    if(savedDate !== today){
+
+        localStorage.setItem(
+            "webzoDate",
+            today
+        );
+
+        localStorage.setItem(
+            "webzoDaily",
+            "0"
+        );
+
+        return 0;
+
+    }
+
+    return Number(
+        localStorage.getItem(
+            "webzoDaily"
+        ) || 0
+    );
+
+}
+
+
+/* =====================================
+   STATS
+===================================== */
+
+function updateStats(){
+
+    const projects =
+        getProjects();
+
+    document.getElementById(
+        "daily"
+    ).innerText =
+        getDaily() + "/1";
+
+
+    document.getElementById(
+        "projectCount"
+    ).innerText =
+        projects.length;
+
+
+    document.getElementById(
+        "projectTotal"
+    ).innerText =
+        projects.length + " PROJECTS";
+
+}
+
+
+updateStats();
+
+
+/* =====================================
+   BUILD
+===================================== */
+
+function buildSite(){
+
+    if(isBuilding) return;
+
+    const idea =
+        document.getElementById(
+            "idea"
+        ).value.trim();
+
+    const style =
+        document.getElementById(
+            "style"
+        ).value;
+
+
+    if(!idea){
+
+        alert(
+            "اول ایده سایتت رو بنویس 😎"
+        );
+
+        return;
+
+    }
+
+
+    const daily =
+        getDaily();
+
+
+    if(daily >= 1){
+
+        openPro();
+
+        return;
+
+    }
+
+
+    isBuilding = true;
+
+
+    const buildButton =
+        document.getElementById(
+            "buildButton"
+        );
+
+    buildButton.disabled = true;
+
+
+    localStorage.setItem(
+        "webzoDaily",
+        daily + 1
+    );
+
+
+    updateStats();
+
+
+    document.getElementById(
+        "building"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "result"
+    ).style.display =
+        "none";
+
+
+    const steps = [
+
+        "در حال تحلیل ایده...",
+
+        "در حال طراحی رابط...",
+
+        "در حال ساخت ساختار...",
+
+        "در حال اضافه کردن استایل...",
+
+        "ساخت سایت کامل شد ⚡"
+
+    ];
+
+
+    let i = 0;
+
+
+    const loading =
+        document.getElementById(
+            "loadingText"
+        );
+
+
+    loading.innerText =
+        steps[0];
+
+
+    const timer =
+        setInterval(function(){
+
+            i++;
+
+
+            if(i >= steps.length){
+
+                clearInterval(timer);
+
+
+                setTimeout(function(){
+
+                    document.getElementById(
+                        "building"
+                    ).style.display =
+                        "none";
+
+
+                    createSite(
+                        idea,
+                        style
+                    );
+
+
+                    isBuilding = false;
+
+                    buildButton.disabled =
+                        false;
+
+                },300);
+
+
+                return;
+
+            }
+
+
+            loading.innerText =
+                steps[i];
+
+
+        },450);
+
+}
+
+
+/* =====================================
+   CREATE SITE
+===================================== */
+
+function createSite(
+    idea,
+    style
+){
+
+    currentProject = {
+
+        id:Date.now(),
+
+        idea:idea,
+
+        style:style,
+
+        title:
+            idea.length > 45
+            ?
+            idea.substring(0,45)+"..."
+            :
+            idea,
+
+        color:"#00aaff",
+
+        created:
+            new Date().toLocaleDateString(
+                "fa-IR"
+            )
+
+    };
+
+
+    applyProject();
+
+
+    document.getElementById(
+        "result"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "result"
+    ).scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+    });
+
+}
+
+
+/* =====================================
+   APPLY PROJECT
+===================================== */
+
+function applyProject(){
+
+    if(!currentProject) return;
+
+
+    document.getElementById(
+        "pTitle"
+    ).innerText =
+        currentProject.title;
+
+
+    document.getElementById(
+        "pDesc"
+    ).innerText =
+        "یک سایت " +
+        currentProject.style +
+        " ساخته‌شده با Webzo.";
+
+
+    document.getElementById(
+        "pAbout"
+    ).innerText =
+        "این سایت با Webzo ساخته شده است.";
+
+
+    const color =
+        currentProject.color ||
+        "#00aaff";
+
+
+    document.getElementById(
+        "pButton"
+    ).style.background =
+        "linear-gradient(90deg,"+
+        color+
+        ",#ff1493)";
+
+
+    document.getElementById(
+        "pLogo"
+    ).style.color =
+        color;
+
+
+    updateEditorPreview();
+
+}
+
+
+/* =====================================
+   EDITOR
+===================================== */
+
+function openEditor(){
+
+    if(!currentProject){
+
+        alert(
+            "اول یک سایت بساز."
+        );
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "editor"
+    ).style.display =
+        "block";
+
+
+    updateEditorPreview();
+
+
+    document.getElementById(
+        "editor"
+    ).scrollIntoView({
+        behavior:"smooth"
+    });
+
+}
+
+
+function updateEditorPreview(){
+
+    const target =
+        document.getElementById(
+            "editorPreview"
+        );
+
+    if(!target) return;
+
+
+    target.innerHTML = "";
+
+
+    const copy =
+        document.getElementById(
+            "preview"
+        ).cloneNode(true);
+
+
+    target.appendChild(copy);
+
+}
+
+
+/* =====================================
+   EDIT TITLE
+===================================== */
+
+function editTitle(){
+
+    if(!currentProject) return;
+
+
+    const text =
+        prompt(
+            "عنوان جدید سایت را وارد کن:",
+            currentProject.title
+        );
+
+
+    if(!text || !text.trim())
+        return;
+
+
+    currentProject.title =
+        text.trim();
+
+
+    applyProject();
+
+}
+
+
+/* =====================================
+   CHANGE COLOR
+===================================== */
+
+function changeColor(){
+
+    if(!currentProject) return;
+
+
+    const color =
+        prompt(
+            "کد رنگ HEX را وارد کن:",
+            currentProject.color ||
+            "#00aaff"
+        );
+
+
+    if(!color) return;
+
+
+    if(!/^#[0-9A-Fa-f]{6}$/.test(color)){
+
+        alert(
+            "کد رنگ معتبر نیست.\nمثلاً #00aaff"
+        );
+
+        return;
+
+    }
+
+
+    currentProject.color =
+        color;
+
+
+    applyProject();
+
+}
+
+
+/* =====================================
+   PRO FEATURES
+===================================== */
+
+function proFeature(name){
+
+    alert(
+        "👑 " +
+        name +
+        "\n\nاین قابلیت فقط در Webzo Pro فعال است."
+    );
+
+
+    openPro();
+
+}
+
+
+/* =====================================
+   SAVE PROJECT
+===================================== */
+
+function saveProject(){
+
+    if(!currentProject){
+
+        alert(
+            "اول یک سایت بساز."
+        );
+
+        return;
+
+    }
+
+
+    const projects =
+        getProjects();
+
+
+    const index =
+        projects.findIndex(
+            function(p){
+
+                return p.id ===
+                    currentProject.id;
+
+            }
+        );
+
+
+    if(index >= 0){
+
+        projects[index] =
+            currentProject;
+
+    }else{
+
+        projects.push(
+            currentProject
+        );
+
+    }
+
+
+    saveProjects(
+        projects
+    );
+
+
+    updateStats();
+
+    renderProjects();
+
+
+    alert(
+        "💾 پروژه با موفقیت ذخیره شد!"
+    );
+
+}
+
+
+/* =====================================
+   PROJECTS
+===================================== */
+
+function showProjects(){
+
+    const section =
+        document.getElementById(
+            "projects"
+        );
+
+
+    section.style.display =
+        "block";
+
+
+    renderProjects();
+
+
+    section.scrollIntoView({
+        behavior:"smooth",
+        block:"start"
+    });
+
+}
+
+
+function renderProjects(){
+
+    const list =
+        document.getElementById(
+            "projectList"
+        );
+
+
+    const projects =
+        getProjects();
+
+
+    list.innerHTML = "";
+
+
+    if(!projects.length){
+
+        list.innerHTML = `
+
+            <div class="empty">
+
+                <div class="emptyIcon">
+                    🌐
+                </div>
+
+                هنوز سایتی ذخیره نکردی.
+
+                <br>
+
+                اولین سایتت رو بساز 🚀
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    projects
+        .slice()
+        .reverse()
+        .forEach(function(project){
+
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+
+            item.className =
+                "project";
+
+
+            item.innerHTML = `
+
+                <div class="projectTop">
+
+                    <div class="projectName">
+                        ${escapeHTML(project.title)}
+                    </div>
+
+                    <div>
+                        ✨
+                    </div>
+
+                </div>
+
+                <div class="projectInfo">
+
+                    ${escapeHTML(project.style || "Webzo")}
+                    ${project.created ? " • " + escapeHTML(project.created) : ""}
+
+                </div>
+
+                <div class="projectActions">
+
+                    <button
+                        class="secondary"
+                        onclick="loadProject(${project.id})"
+                    >
+                        ✏️ ویرایش
+                    </button>
+
+                    <button
+                        class="deleteBtn"
+                        onclick="deleteProject(${project.id})"
+                    >
+                        🗑 حذف
+                    </button>
+
+                </div>
+
+            `;
+
+
+            list.appendChild(
+                item
+            );
+
+        });
+
+}
+
+
+/* =====================================
+   LOAD PROJECT
+===================================== */
+
+function loadProject(id){
+
+    const projects =
+        getProjects();
+
+
+    const project =
+        projects.find(
+            function(p){
+
+                return p.id === id;
+
+            }
+        );
+
+
+    if(!project) return;
+
+
+    currentProject =
+        JSON.parse(
+            JSON.stringify(project)
+        );
+
+
+    applyProject();
+
+
+    document.getElementById(
+        "result"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "editor"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "result"
+    ).scrollIntoView({
+        behavior:"smooth"
+    });
+
+
+    setTimeout(function(){
+
+        document.getElementById(
+            "editor"
+        ).scrollIntoView({
+            behavior:"smooth"
+        });
+
+    },250);
+
+}
+
+
+/* =====================================
+   DELETE
+===================================== */
+
+function deleteProject(id){
+
+    const ok =
+        confirm(
+            "این پروژه حذف شود؟"
+        );
+
+
+    if(!ok) return;
+
+
+    const projects =
+        getProjects()
+        .filter(function(p){
+
+            return p.id !== id;
+
+        });
+
+
+    saveProjects(
+        projects
+    );
+
+
+    updateStats();
+
+    renderProjects();
+
+}
+
+
+/* =====================================
+   SAFE TEXT
+===================================== */
+
+function escapeHTML(text){
+
+    return String(text || "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/* =====================================
+   AI
+===================================== */
+
+function openAI(){
+
+    document.getElementById(
+        "aiModal"
+    ).style.display =
+        "flex";
+
+}
+
+
+function generateAI(){
+
+    const input =
+        document.getElementById(
+            "aiInput"
+        ).value.trim();
+
+
+    if(!input){
+
+        alert(
+            "اول ایده‌ات رو بنویس 😎"
+        );
+
+        return;
+
+    }
+
+
+    const ideas = [
+
+        "🔥 صفحه اصلی سینمایی + بخش معرفی + امکانات + تماس با ما.",
+
+        "💎 طراحی لوکس شیشه‌ای با Hero بزرگ و کارت‌های حرفه‌ای.",
+
+        "🚀 صفحه اصلی + داشبورد کاربر + سیستم عضویت.",
+
+        "⚡ سایت ابزارمحور با چند ابزار کاربردی و پنل کاربری.",
+
+        "🎯 مدل Free + Pro با امکانات حرفه‌ای برای کاربران پولی."
+
+    ];
+
+
+    const result =
+        ideas[
+            Math.floor(
+                Math.random() *
+                ideas.length
+            )
+        ];
+
+
+    const box =
+        document.getElementById(
+            "aiResult"
+        );
+
+
+    box.innerHTML =
+
+        "<b>💡 پیشنهاد Webzo AI</b><br><br>" +
+
+        result +
+
+        "<br><br>" +
+
+        "🎨 سبک: Dark Neon" +
+
+        "<br>" +
+
+        "💰 مدل درآمد: Free + Pro";
+
+
+    box.style.display =
+        "block";
+
+}
+
+
+/* =====================================
+   MODALS
+===================================== */
+
+function openPro(){
+
+    document.getElementById(
+        "proModal"
+    ).style.display =
+        "flex";
+
+}
+
+
+function closeModal(id){
+
+    document.getElementById(
+        id
+    ).style.display =
+        "none";
+
+}
+
+
+/* =====================================
+   DEMO UPGRADE
+===================================== */
+
+function fakeUpgrade(){
+
+    alert(
+        "👑 Webzo Pro\n\n" +
+        "سیستم پرداخت هنوز متصل نشده است.\n" +
+        "بعداً می‌توان درگاه پرداخت را به این قسمت وصل کرد."
+    );
+
+}
+
+
+/* =====================================
+   NAVIGATION
+===================================== */
+
+function goCreate(){
+
+    document.getElementById(
+        "create"
+    ).scrollIntoView({
+        behavior:"smooth"
+    });
+
+}
+
+
+function home(){
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+
+/* =====================================
+   CLOSE MODAL BY BACKGROUND
+===================================== */
+
+document.querySelectorAll(
+    ".modal"
+).forEach(function(modal){
+
+    modal.addEventListener(
+        "click",
+        function(e){
+
+            if(e.target === modal){
+
+                modal.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+});
+
+
+/* =====================================
+   ESC KEY
+===================================== */
+
+document.addEventListener(
+    "keydown",
+    function(e){
+
+        if(e.key === "Escape"){
+
+            document
+                .querySelectorAll(".modal")
+                .forEach(function(modal){
+
+                    modal.style.display =
+                        "none";
+
+                });
+
+        }
+
+    }
+);
+
+
+/* =====================================
+   INITIALIZE
+===================================== */
+
+renderProjects();
+updateStats();
+
+</script>
+
+</body>
+</html>
