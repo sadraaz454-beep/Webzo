@@ -1,7 +1,7 @@
 const express = require("express");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
-const fs = require("fs");
+const { Pool } = require("pg");
 
 const app = express();
 
@@ -12,28 +12,44 @@ const PORT = process.env.PORT || 10000;
 const OWNER_PASSWORD =
   process.env.OWNER_PASSWORD || "12345678";
 
-const usersFile = "./users.json";
+const DATABASE_URL =
+  process.env.DATABASE_URL;
 
-let users = [];
+if (!DATABASE_URL) {
+  console.error("DATABASE_URL تنظیم نشده است.");
+  process.exit(1);
+}
 
-if (fs.existsSync(usersFile)) {
-  try {
-    users = JSON.parse(
-      fs.readFileSync(usersFile, "utf8")
-    );
-  } catch {
-    users = [];
+const pool = new Pool({
+  connectionString: DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
   }
+});
+
+
+/* اتصال و ساخت جدول */
+
+async function initDatabase() {
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id VARCHAR(20) PRIMARY KEY,
+      username VARCHAR(100) UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      token TEXT UNIQUE NOT NULL,
+      pro_until TIMESTAMPTZ NULL
+    )
+  `);
+
+  console.log("Database ready.");
 }
 
-function saveUsers() {
-  fs.writeFileSync(
-    usersFile,
-    JSON.stringify(users, null, 2)
-  );
-}
+
+/* ابزارها */
 
 function createId() {
+
   return (
     "WZ-" +
     crypto
@@ -41,19 +57,23 @@ function createId() {
       .toString("hex")
       .toUpperCase()
   );
+
 }
 
+
 function createToken() {
+
   return crypto
     .randomBytes(32)
     .toString("hex");
+
 }
 
-function getUser(token) {
 
-  return users.find(
-    user => user.token === token
-  );
+function getToken(req) {
+
+  return req.headers.authorization
+    ?.replace("Bearer ", "");
 
 }
 
@@ -75,95 +95,113 @@ app.post(
   "/api/register",
   async (req, res) => {
 
-    const username =
-      String(
-        req.body.username || ""
-      ).trim();
+    try {
 
-    const password =
-      String(
-        req.body.password || ""
-      );
+      const username =
+        String(
+          req.body.username || ""
+        ).trim();
 
-    if (username.length < 3) {
+      const password =
+        String(
+          req.body.password || ""
+        );
 
-      return res.status(400).json({
-        error:
-          "نام کاربری حداقل ۳ حرف باشد."
-      });
+      if (username.length < 3) {
 
-    }
-
-    if (password.length < 8) {
-
-      return res.status(400).json({
-        error:
-          "رمز عبور حداقل ۸ کاراکتر باشد."
-      });
-
-    }
-
-    const exists =
-      users.find(
-        u =>
-          u.username.toLowerCase() ===
-          username.toLowerCase()
-      );
-
-    if (exists) {
-
-      return res.status(400).json({
-        error:
-          "این نام کاربری قبلاً ثبت شده."
-      });
-
-    }
-
-    const user = {
-
-      id: createId(),
-
-      username,
-
-      password:
-        await bcrypt.hash(
-          password,
-          10
-        ),
-
-      token:
-        createToken(),
-
-      proUntil: null
-
-    };
-
-    users.push(user);
-
-    saveUsers();
-
-    res.json({
-
-      success: true,
-
-      token: user.token,
-
-      user: {
-
-        id: user.id,
-
-        username: user.username,
-
-        pro: false,
-
-        proUntil: null
+        return res.status(400).json({
+          error:
+            "نام کاربری حداقل ۳ حرف باشد."
+        });
 
       }
 
-    });
+      if (password.length < 8) {
+
+        return res.status(400).json({
+          error:
+            "رمز عبور حداقل ۸ کاراکتر باشد."
+        });
+
+      }
+
+      const existing =
+        await pool.query(
+          `
+          SELECT id
+          FROM users
+          WHERE LOWER(username) = LOWER($1)
+          `,
+          [username]
+        );
+
+      if (existing.rows.length > 0) {
+
+        return res.status(400).json({
+          error:
+            "این نام کاربری قبلاً ثبت شده."
+        });
+
+      }
+
+      const id =
+        createId();
+
+      const token =
+        createToken();
+
+      const hashedPassword =
+        await bcrypt.hash(
+          password,
+          10
+        );
+
+      await pool.query(
+        `
+        INSERT INTO users
+        (id, username, password, token, pro_until)
+        VALUES ($1, $2, $3, $4, NULL)
+        `,
+        [
+          id,
+          username,
+          hashedPassword,
+          token
+        ]
+      );
+
+      res.json({
+
+        success: true,
+
+        token,
+
+        user: {
+
+          id,
+
+          username,
+
+          pro: false,
+
+          proUntil: null
+
+        }
+
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+        error:
+          "خطا در ساخت حساب."
+      });
+
+    }
 
   }
-
 );
 
 
@@ -173,74 +211,99 @@ app.post(
   "/api/login",
   async (req, res) => {
 
-    const username =
-      String(
-        req.body.username || ""
-      ).trim();
+    try {
 
-    const password =
-      String(
-        req.body.password || ""
-      );
+      const username =
+        String(
+          req.body.username || ""
+        ).trim();
 
-    const user =
-      users.find(
-        u =>
-          u.username.toLowerCase() ===
-          username.toLowerCase()
-      );
+      const password =
+        String(
+          req.body.password || ""
+        );
 
-    if (!user) {
+      const result =
+        await pool.query(
+          `
+          SELECT *
+          FROM users
+          WHERE LOWER(username) = LOWER($1)
+          LIMIT 1
+          `,
+          [username]
+        );
 
-      return res.status(401).json({
-        error:
-          "نام کاربری یا رمز عبور اشتباه است."
-      });
+      if (result.rows.length === 0) {
 
-    }
-
-    const correct =
-      await bcrypt.compare(
-        password,
-        user.password
-      );
-
-    if (!correct) {
-
-      return res.status(401).json({
-        error:
-          "نام کاربری یا رمز عبور اشتباه است."
-      });
-
-    }
-
-    res.json({
-
-      success: true,
-
-      token: user.token,
-
-      user: {
-
-        id: user.id,
-
-        username: user.username,
-
-        pro:
-          user.proUntil &&
-          new Date(
-            user.proUntil
-          ) > new Date(),
-
-        proUntil:
-          user.proUntil
+        return res.status(401).json({
+          error:
+            "نام کاربری یا رمز عبور اشتباه است."
+        });
 
       }
 
-    });
+      const user =
+        result.rows[0];
+
+      const correct =
+        await bcrypt.compare(
+          password,
+          user.password
+        );
+
+      if (!correct) {
+
+        return res.status(401).json({
+          error:
+            "نام کاربری یا رمز عبور اشتباه است."
+        });
+
+      }
+
+      const isPro =
+        user.pro_until &&
+        new Date(
+          user.pro_until
+        ) > new Date();
+
+      res.json({
+
+        success: true,
+
+        token:
+          user.token,
+
+        user: {
+
+          id:
+            user.id,
+
+          username:
+            user.username,
+
+          pro:
+            Boolean(isPro),
+
+          proUntil:
+            user.pro_until
+
+        }
+
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+        error:
+          "خطا در ورود."
+      });
+
+    }
 
   }
-
 );
 
 
@@ -248,50 +311,89 @@ app.post(
 
 app.get(
   "/api/me",
-  (req, res) => {
+  async (req, res) => {
 
-    const token =
-      req.headers.authorization
-        ?.replace(
-          "Bearer ",
-          ""
+    try {
+
+      const token =
+        getToken(req);
+
+      if (!token) {
+
+        return res.status(401).json({
+          error:
+            "وارد حساب نشده‌اید."
+        });
+
+      }
+
+      const result =
+        await pool.query(
+          `
+          SELECT
+            id,
+            username,
+            pro_until
+          FROM users
+          WHERE token = $1
+          LIMIT 1
+          `,
+          [token]
         );
 
-    const user =
-      getUser(token);
+      if (result.rows.length === 0) {
 
-    if (!user) {
+        return res.status(401).json({
+          error:
+            "جلسه ورود معتبر نیست."
+        });
 
-      return res.status(401).json({
+      }
+
+      const user =
+        result.rows[0];
+
+      const isPro =
+        user.pro_until &&
+        new Date(
+          user.pro_until
+        ) > new Date();
+
+      res.json({
+
+        id:
+          user.id,
+
+        username:
+          user.username,
+
+        pro:
+          Boolean(isPro),
+
+        proUntil:
+          user.pro_until
+
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
         error:
-          "وارد حساب نشده‌اید."
+          "خطا در دریافت اطلاعات کاربر."
       });
 
     }
 
-    res.json({
-
-      id: user.id,
-
-      username: user.username,
-
-      pro:
-        user.proUntil &&
-        new Date(
-          user.proUntil
-        ) > new Date(),
-
-      proUntil:
-        user.proUntil
-
-    });
-
   }
-
 );
 
 
 /* ورود مالک */
+
+let ownerToken = null;
+
 
 app.post(
   "/api/owner/login",
@@ -314,24 +416,23 @@ app.post(
 
     }
 
-    const token =
+    ownerToken =
       createToken();
-
-    global.ownerToken =
-      token;
 
     res.json({
 
       success: true,
 
-      token
+      token:
+        ownerToken
 
     });
 
   }
-
 );
 
+
+/* احراز هویت مالک */
 
 function ownerAuth(
   req,
@@ -340,15 +441,11 @@ function ownerAuth(
 ) {
 
   const token =
-    req.headers.authorization
-      ?.replace(
-        "Bearer ",
-        ""
-      );
+    getToken(req);
 
   if (
     !token ||
-    token !== global.ownerToken
+    token !== ownerToken
   ) {
 
     return res.status(403).json({
@@ -368,46 +465,74 @@ function ownerAuth(
 app.get(
   "/api/owner/user/:id",
   ownerAuth,
-  (req, res) => {
+  async (req, res) => {
 
-    const id =
-      req.params.id.toUpperCase();
+    try {
 
-    const user =
-      users.find(
-        u =>
-          u.id.toUpperCase() === id
-      );
+      const id =
+        req.params.id
+          .toUpperCase();
 
-    if (!user) {
+      const result =
+        await pool.query(
+          `
+          SELECT
+            id,
+            username,
+            pro_until
+          FROM users
+          WHERE UPPER(id) = $1
+          LIMIT 1
+          `,
+          [id]
+        );
 
-      return res.status(404).json({
+      if (result.rows.length === 0) {
+
+        return res.status(404).json({
+          error:
+            "User ID پیدا نشد."
+        });
+
+      }
+
+      const user =
+        result.rows[0];
+
+      const isPro =
+        user.pro_until &&
+        new Date(
+          user.pro_until
+        ) > new Date();
+
+      res.json({
+
+        id:
+          user.id,
+
+        username:
+          user.username,
+
+        pro:
+          Boolean(isPro),
+
+        proUntil:
+          user.pro_until
+
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
         error:
-          "User ID پیدا نشد."
+          "خطا در جستجوی کاربر."
       });
 
     }
 
-    res.json({
-
-      id: user.id,
-
-      username:
-        user.username,
-
-      pro:
-        user.proUntil &&
-        new Date(
-          user.proUntil
-        ) > new Date(),
-
-      proUntil:
-        user.proUntil
-
-    });
-
   }
-
 );
 
 
@@ -416,95 +541,127 @@ app.get(
 app.post(
   "/api/owner/pro",
   ownerAuth,
-  (req, res) => {
+  async (req, res) => {
 
-    const id =
-      String(
-        req.body.userId || ""
-      ).toUpperCase();
+    try {
 
-    const days =
-      Number(
-        req.body.days
-      );
+      const id =
+        String(
+          req.body.userId || ""
+        ).toUpperCase();
 
-    if (
-      ![
-        30,
-        60,
-        90,
-        365
-      ].includes(days)
-    ) {
+      const days =
+        Number(
+          req.body.days
+        );
 
-      return res.status(400).json({
-        error:
-          "مدت اشتراک اشتباه است."
-      });
+      if (
+        ![
+          30,
+          60,
+          90,
+          365
+        ].includes(days)
+      ) {
 
-    }
+        return res.status(400).json({
+          error:
+            "مدت اشتراک اشتباه است."
+        });
 
-    const user =
-      users.find(
-        u =>
-          u.id.toUpperCase() ===
-          id
-      );
+      }
 
-    if (!user) {
+      const result =
+        await pool.query(
+          `
+          SELECT
+            id,
+            pro_until
+          FROM users
+          WHERE UPPER(id) = $1
+          LIMIT 1
+          `,
+          [id]
+        );
 
-      return res.status(404).json({
-        error:
-          "User ID پیدا نشد."
-      });
+      if (result.rows.length === 0) {
 
-    }
+        return res.status(404).json({
+          error:
+            "User ID پیدا نشد."
+        });
 
-    const now =
-      Date.now();
+      }
 
-    let start =
-      now;
+      const user =
+        result.rows[0];
 
-    if (
-      user.proUntil &&
-      new Date(
-        user.proUntil
-      ).getTime() > now
-    ) {
+      const now =
+        Date.now();
 
-      start =
+      let start =
+        now;
+
+      if (
+        user.pro_until &&
         new Date(
-          user.proUntil
-        ).getTime();
+          user.pro_until
+        ).getTime() > now
+      ) {
+
+        start =
+          new Date(
+            user.pro_until
+          ).getTime();
+
+      }
+
+      const newProUntil =
+        new Date(
+          start +
+          days *
+          24 *
+          60 *
+          60 *
+          1000
+        );
+
+      await pool.query(
+        `
+        UPDATE users
+        SET pro_until = $1
+        WHERE id = $2
+        `,
+        [
+          newProUntil,
+          user.id
+        ]
+      );
+
+      res.json({
+
+        success: true,
+
+        id:
+          user.id,
+
+        proUntil:
+          newProUntil.toISOString()
+
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+        error:
+          "خطا در فعال‌سازی Pro."
+      });
 
     }
-
-    user.proUntil =
-      new Date(
-        start +
-        days *
-        24 *
-        60 *
-        60 *
-        1000
-      ).toISOString();
-
-    saveUsers();
-
-    res.json({
-
-      success: true,
-
-      id: user.id,
-
-      proUntil:
-        user.proUntil
-
-    });
 
   }
-
 );
 
 
@@ -513,40 +670,51 @@ app.post(
 app.post(
   "/api/owner/revoke",
   ownerAuth,
-  (req, res) => {
+  async (req, res) => {
 
-    const id =
-      String(
-        req.body.userId || ""
-      ).toUpperCase();
+    try {
 
-    const user =
-      users.find(
-        u =>
-          u.id.toUpperCase() ===
-          id
-      );
+      const id =
+        String(
+          req.body.userId || ""
+        ).toUpperCase();
 
-    if (!user) {
+      const result =
+        await pool.query(
+          `
+          UPDATE users
+          SET pro_until = NULL
+          WHERE UPPER(id) = $1
+          RETURNING id
+          `,
+          [id]
+        );
 
-      return res.status(404).json({
+      if (result.rows.length === 0) {
+
+        return res.status(404).json({
+          error:
+            "User ID پیدا نشد."
+        });
+
+      }
+
+      res.json({
+        success: true
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
         error:
-          "User ID پیدا نشد."
+          "خطا در لغو اشتراک."
       });
 
     }
 
-    user.proUntil =
-      null;
-
-    saveUsers();
-
-    res.json({
-      success: true
-    });
-
   }
-
 );
 
 
@@ -562,18 +730,34 @@ app.get(
     });
 
   }
-
 );
 
 
-app.listen(
-  PORT,
-  () => {
+/* شروع سرور */
 
-    console.log(
-      "Webzo running on port " +
-      PORT
+initDatabase()
+  .then(() => {
+
+    app.listen(
+      PORT,
+      () => {
+
+        console.log(
+          "Webzo running on port " +
+          PORT
+        );
+
+      }
     );
 
-  }
-);
+  })
+  .catch(error => {
+
+    console.error(
+      "Database initialization failed:",
+      error
+    );
+
+    process.exit(1);
+
+  });
