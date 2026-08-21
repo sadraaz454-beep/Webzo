@@ -1,340 +1,415 @@
 const express = require("express");
-const path = require("path");
 const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
 
 const app = express();
 
-const PORT = process.env.PORT || 3000;
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.6";
-const PRO_ACCESS_CODE = process.env.PRO_ACCESS_CODE;
+app.use(express.json());
+app.use(express.static("public"));
 
-const SESSION_SECRET =
-  process.env.SESSION_SECRET ||
-  crypto.randomBytes(32).toString("hex");
+const PORT = process.env.PORT || 10000;
 
-app.use(express.json({ limit: "100kb" }));
-app.use(express.static(__dirname));
+const OWNER_PASSWORD =
+  process.env.OWNER_PASSWORD || "CHANGE_THIS_PASSWORD";
 
-/* =========================================================
-   SECURITY HELPERS
-========================================================= */
+const users = new Map();
 
-function sign(value) {
-  return crypto
-    .createHmac("sha256", SESSION_SECRET)
-    .update(value)
-    .digest("hex");
+function createId() {
+  return (
+    "WZ-" +
+    crypto.randomBytes(4).toString("hex").toUpperCase()
+  );
 }
 
-function createProToken() {
-  const payload = Buffer.from(
-    JSON.stringify({
-      plan: "pro",
-      created: Date.now()
-    })
-  ).toString("base64url");
-
-  return `${payload}.${sign(payload)}`;
+function createToken() {
+  return crypto.randomBytes(32).toString("hex");
 }
 
-function verifyProToken(token) {
-  if (!token || !token.includes(".")) return false;
+function getUser(token) {
+  for (const user of users.values()) {
+    if (user.token === token) return user;
+  }
 
-  const [payload, signature] = token.split(".");
+  return null;
+}
 
-  if (!payload || !signature) return false;
+/* REGISTER */
 
-  const expected = sign(payload);
+app.post("/api/register", async (req, res) => {
 
-  if (signature.length !== expected.length) return false;
+  const username = String(req.body.username || "").trim();
+  const password = String(req.body.password || "");
 
-  try {
+  if (username.length < 3) {
+    return res.status(400).json({
+      error: "نام کاربری حداقل ۳ حرف باشد."
+    });
+  }
+
+  if (password.length < 8) {
+    return res.status(400).json({
+      error: "رمز عبور حداقل ۸ کاراکتر باشد."
+    });
+  }
+
+  for (const user of users.values()) {
+
     if (
-      !crypto.timingSafeEqual(
-        Buffer.from(signature),
-        Buffer.from(expected)
-      )
+      user.username.toLowerCase() ===
+      username.toLowerCase()
     ) {
-      return false;
+
+      return res.status(400).json({
+        error: "این نام کاربری قبلاً ثبت شده."
+      });
+
     }
 
-    const data = JSON.parse(
-      Buffer.from(payload, "base64url").toString()
-    );
-
-    return data.plan === "pro";
-  } catch {
-    return false;
   }
-}
 
-function getCookies(req) {
-  const header = req.headers.cookie || "";
+  const id = createId();
 
-  const cookies = {};
+  const user = {
 
-  header.split(";").forEach((part) => {
-    const index = part.indexOf("=");
+    id,
 
-    if (index === -1) return;
+    username,
 
-    const key = part.slice(0, index).trim();
-    const value = part.slice(index + 1).trim();
+    password: await bcrypt.hash(password, 10),
 
-    cookies[key] = decodeURIComponent(value);
-  });
+    token: createToken(),
 
-  return cookies;
-}
+    proUntil: null
 
-function isPro(req) {
-  const cookies = getCookies(req);
-  return verifyProToken(cookies.webzo_pro);
-}
+  };
 
-/* =========================================================
-   HEALTH
-========================================================= */
+  users.set(id, user);
 
-app.get("/api/health", (req, res) => {
   res.json({
-    ok: true,
-    app: "Webzo",
-    version: "2.0.0",
-    aiConfigured: Boolean(OPENAI_API_KEY),
-    model: OPENAI_MODEL
+
+    success: true,
+
+    user: {
+
+      id: user.id,
+
+      username: user.username,
+
+      pro: false
+
+    },
+
+    token: user.token
+
   });
+
 });
 
-/* =========================================================
-   CURRENT PLAN
-========================================================= */
+
+/* LOGIN */
+
+app.post("/api/login", async (req, res) => {
+
+  const username = String(req.body.username || "").trim();
+  const password = String(req.body.password || "");
+
+  for (const user of users.values()) {
+
+    if (
+      user.username.toLowerCase() ===
+      username.toLowerCase()
+    ) {
+
+      const ok =
+        await bcrypt.compare(
+          password,
+          user.password
+        );
+
+      if (!ok) break;
+
+      res.json({
+
+        success: true,
+
+        user: {
+
+          id: user.id,
+
+          username: user.username,
+
+          pro:
+            user.proUntil &&
+            new Date(user.proUntil) > new Date(),
+
+          proUntil: user.proUntil
+
+        },
+
+        token: user.token
+
+      });
+
+      return;
+
+    }
+
+  }
+
+  res.status(401).json({
+
+    error: "نام کاربری یا رمز عبور اشتباه است."
+
+  });
+
+});
+
+
+/* USER */
 
 app.get("/api/me", (req, res) => {
-  res.json({
-    ok: true,
-    plan: isPro(req) ? "pro" : "free"
-  });
-});
 
-/* =========================================================
-   TEST PRO ACTIVATION
-   Later this will be replaced with real payment verification.
-========================================================= */
-
-app.post("/api/pro/activate", (req, res) => {
-  const code = String(req.body?.code || "").trim();
-
-  if (!PRO_ACCESS_CODE) {
-    return res.status(503).json({
-      ok: false,
-      error: "سیستم فعال‌سازی Pro هنوز تنظیم نشده است."
-    });
-  }
-
-  if (!code || code !== PRO_ACCESS_CODE) {
-    return res.status(403).json({
-      ok: false,
-      error: "کد Pro اشتباه است."
-    });
-  }
-
-  const token = createProToken();
-
-  res.setHeader(
-    "Set-Cookie",
-    `webzo_pro=${encodeURIComponent(token)}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=2592000`
-  );
-
-  res.json({
-    ok: true,
-    plan: "pro",
-    message: "Webzo Pro فعال شد 👑"
-  });
-});
-
-/* =========================================================
-   LOGOUT / RETURN TO FREE
-========================================================= */
-
-app.post("/api/pro/logout", (req, res) => {
-  res.setHeader(
-    "Set-Cookie",
-    "webzo_pro=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0"
-  );
-
-  res.json({
-    ok: true,
-    plan: "free"
-  });
-});
-
-/* =========================================================
-   REAL OPENAI AI
-========================================================= */
-
-app.post("/api/ai", async (req, res) => {
-  // SERVER-SIDE PRO LOCK
-  if (!isPro(req)) {
-    return res.status(403).json({
-      ok: false,
-      error: "Webzo AI فقط برای کاربران Pro فعال است. 👑"
-    });
-  }
-
-  if (!OPENAI_API_KEY) {
-    return res.status(503).json({
-      ok: false,
-      error: "OPENAI_API_KEY در سرور تنظیم نشده است."
-    });
-  }
-
-  const idea = String(req.body?.idea || "").trim();
-
-  if (!idea) {
-    return res.status(400).json({
-      ok: false,
-      error: "ایده سایت را وارد کن."
-    });
-  }
-
-  if (idea.length > 4000) {
-    return res.status(400).json({
-      ok: false,
-      error: "متن ایده خیلی طولانی است."
-    });
-  }
-
-  const prompt = `
-تو Webzo AI هستی؛ یک متخصص حرفه‌ای طراحی سایت، UX/UI، برندینگ،
-دیجیتال مارکتینگ و ایده‌پردازی محصول.
-
-کاربر می‌خواهد یک سایت بسازد.
-
-ایده کاربر:
-${idea}
-
-یک پیشنهاد حرفه‌ای و کاربردی به زبان فارسی بده.
-
-حتماً این بخش‌ها را داشته باش:
-
-1. نام پیشنهادی سایت
-2. ایده اصلی
-3. ساختار صفحه اصلی
-4. صفحات پیشنهادی
-5. منوی پیشنهادی
-6. رنگ‌های مناسب
-7. سبک UI/UX
-8. امکانات ویژه
-9. ایده‌های درآمدزایی
-10. پیشنهاد برای نسخه Free
-11. پیشنهاد برای نسخه Pro
-12. یک ایده خلاقانه که سایت را متفاوت کند
-
-پاسخ را واضح، کوتاه و قابل استفاده برای ساخت سایت بنویس.
-`;
-
-  try {
-    const response = await fetch(
-      "https://api.openai.com/v1/responses",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENAI_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: OPENAI_MODEL,
-          input: prompt
-        })
-      }
+  const token =
+    req.headers.authorization?.replace(
+      "Bearer ",
+      ""
     );
 
-    const data = await response.json();
+  const user = getUser(token);
 
-    if (!response.ok) {
-      console.error("OpenAI error:", data);
+  if (!user) {
 
-      return res.status(502).json({
-        ok: false,
-        error: "ارتباط با Webzo AI ناموفق بود."
+    return res.status(401).json({
+      error: "وارد حساب نشده‌اید."
+    });
+
+  }
+
+  res.json({
+
+    id: user.id,
+
+    username: user.username,
+
+    pro:
+      user.proUntil &&
+      new Date(user.proUntil) > new Date(),
+
+    proUntil: user.proUntil
+
+  });
+
+});
+
+
+/* OWNER LOGIN */
+
+app.post("/api/owner/login", (req, res) => {
+
+  const password =
+    String(req.body.password || "");
+
+  if (password !== OWNER_PASSWORD) {
+
+    return res.status(401).json({
+      error: "رمز مالک اشتباه است."
+    });
+
+  }
+
+  const ownerToken = createToken();
+
+  global.ownerToken = ownerToken;
+
+  res.json({
+
+    success: true,
+
+    token: ownerToken
+
+  });
+
+});
+
+
+function ownerAuth(req, res, next) {
+
+  const token =
+    req.headers.authorization?.replace(
+      "Bearer ",
+      ""
+    );
+
+  if (
+    !token ||
+    token !== global.ownerToken
+  ) {
+
+    return res.status(403).json({
+      error: "دسترسی غیرمجاز."
+    });
+
+  }
+
+  next();
+
+}
+
+
+/* FIND USER */
+
+app.get(
+  "/api/owner/user/:id",
+  ownerAuth,
+  (req, res) => {
+
+    const user =
+      users.get(
+        req.params.id.toUpperCase()
+      );
+
+    if (!user) {
+
+      return res.status(404).json({
+        error: "User ID پیدا نشد."
       });
-    }
 
-    const text =
-      data.output_text ||
-      extractOutputText(data);
-
-    if (!text) {
-      return res.status(502).json({
-        ok: false,
-        error: "AI پاسخی برنگرداند."
-      });
     }
 
     res.json({
-      ok: true,
-      model: OPENAI_MODEL,
-      result: text
+
+      id: user.id,
+
+      username: user.username,
+
+      pro:
+        user.proUntil &&
+        new Date(user.proUntil) > new Date(),
+
+      proUntil: user.proUntil
+
     });
 
-  } catch (error) {
-    console.error("AI request error:", error);
-
-    res.status(500).json({
-      ok: false,
-      error: "خطای داخلی سرور هنگام ارتباط با AI."
-    });
   }
-});
+);
 
-function extractOutputText(data) {
-  try {
-    const outputs = data.output || [];
 
-    let result = "";
+/* ACTIVATE PRO */
 
-    for (const item of outputs) {
-      if (item.type !== "message") continue;
+app.post(
+  "/api/owner/pro",
+  ownerAuth,
+  (req, res) => {
 
-      for (const content of item.content || []) {
-        if (content.type === "output_text") {
-          result += content.text || "";
-        }
-      }
+    const id =
+      String(req.body.userId || "")
+        .toUpperCase();
+
+    const days =
+      Number(req.body.days);
+
+    if (![30, 60, 90, 365].includes(days)) {
+
+      return res.status(400).json({
+        error: "مدت اشتراک اشتباه است."
+      });
+
     }
 
-    return result.trim();
-  } catch {
-    return "";
+    const user = users.get(id);
+
+    if (!user) {
+
+      return res.status(404).json({
+        error: "User ID پیدا نشد."
+      });
+
+    }
+
+    const now = Date.now();
+
+    let start = now;
+
+    if (
+      user.proUntil &&
+      new Date(user.proUntil).getTime() > now
+    ) {
+
+      start =
+        new Date(user.proUntil).getTime();
+
+    }
+
+    user.proUntil =
+      new Date(
+        start +
+        days *
+        24 *
+        60 *
+        60 *
+        1000
+      ).toISOString();
+
+    res.json({
+
+      success: true,
+
+      id: user.id,
+
+      proUntil: user.proUntil
+
+    });
+
   }
-}
+);
 
-/* =========================================================
-   MAIN PAGE
-========================================================= */
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
+/* REVOKE PRO */
 
-/* =========================================================
-   FALLBACK
-========================================================= */
+app.post(
+  "/api/owner/revoke",
+  ownerAuth,
+  (req, res) => {
 
-app.use((req, res) => {
-  res.status(404).json({
-    ok: false,
-    error: "Not Found"
+    const id =
+      String(req.body.userId || "")
+        .toUpperCase();
+
+    const user = users.get(id);
+
+    if (!user) {
+
+      return res.status(404).json({
+        error: "User ID پیدا نشد."
+      });
+
+    }
+
+    user.proUntil = null;
+
+    res.json({
+      success: true
+    });
+
+  }
+);
+
+
+/* HEALTH */
+
+app.get("/api/health", (req, res) => {
+
+  res.json({
+    status: "Webzo is running"
   });
+
 });
 
-/* =========================================================
-   START
-========================================================= */
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Webzo running on port ${PORT}`);
-  console.log(`AI model: ${OPENAI_MODEL}`);
+app.listen(PORT, () => {
+
+  console.log(
+    `Webzo running on port ${PORT}`
+  );
+
 });
