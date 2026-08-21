@@ -2,302 +2,873 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Webzo</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Webzo | AI</title>
 
 <style>
-body{
-    margin:0;
-    font-family:Tahoma,Arial;
-    background:#0b1020;
-    color:white;
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
+
+*{
+  box-sizing:border-box;
 }
 
-.container{
-    max-width:700px;
-    margin:auto;
-    padding:25px;
+:root{
+  --bg:#05050b;
+  --card:rgba(15,17,31,.72);
+  --border:rgba(255,255,255,.09);
+  --text:#f7f7ff;
+  --muted:#9699b3;
+  --purple:#8b5cf6;
+  --pink:#ec4899;
+  --cyan:#22d3ee;
+  --green:#34d399;
+  --danger:#fb7185;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Vazirmatn,Tahoma,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 15% 15%,rgba(139,92,246,.22),transparent 28%),
+    radial-gradient(circle at 85% 20%,rgba(34,211,238,.13),transparent 25%),
+    radial-gradient(circle at 50% 90%,rgba(236,72,153,.13),transparent 30%),
+    var(--bg);
+  overflow-x:hidden;
+}
+
+body:before,
+body:after{
+  content:"";
+  position:fixed;
+  width:420px;
+  height:420px;
+  border-radius:50%;
+  filter:blur(100px);
+  opacity:.22;
+  pointer-events:none;
+  z-index:-1;
+  animation:float 10s ease-in-out infinite alternate;
+}
+
+body:before{
+  background:#7c3aed;
+  top:-180px;
+  right:-120px;
+}
+
+body:after{
+  background:#0891b2;
+  bottom:-200px;
+  left:-150px;
+  animation-delay:-4s;
+}
+
+@keyframes float{
+  to{
+    transform:translate(80px,50px) scale(1.15);
+  }
+}
+
+#app{
+  width:min(1100px,94%);
+  margin:auto;
+  padding:25px 0 60px;
+}
+
+.nav{
+  height:68px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 20px;
+  margin-bottom:25px;
+  border:1px solid var(--border);
+  background:rgba(8,9,18,.68);
+  backdrop-filter:blur(22px);
+  border-radius:22px;
+  box-shadow:0 15px 60px rgba(0,0,0,.3);
+}
+
+.logo{
+  font-size:24px;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.logo span{
+  background:linear-gradient(90deg,#a78bfa,#22d3ee,#f472b6);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+
+.badge{
+  padding:7px 13px;
+  border-radius:999px;
+  font-size:12px;
+  color:#ddd6fe;
+  background:rgba(139,92,246,.12);
+  border:1px solid rgba(139,92,246,.25);
 }
 
 .card{
-    background:#151d33;
-    padding:20px;
-    margin:15px 0;
-    border-radius:18px;
+  position:relative;
+  overflow:hidden;
+  background:var(--card);
+  border:1px solid var(--border);
+  backdrop-filter:blur(25px);
+  border-radius:28px;
+  padding:25px;
+  margin:18px 0;
+  box-shadow:
+    0 20px 80px rgba(0,0,0,.28),
+    inset 0 1px rgba(255,255,255,.035);
+  animation:cardIn .65s ease both;
 }
 
-input,textarea{
-    width:100%;
-    box-sizing:border-box;
-    padding:13px;
-    margin:8px 0;
-    border-radius:10px;
-    border:1px solid #34405f;
-    background:#0d1427;
-    color:white;
+.card:before{
+  content:"";
+  position:absolute;
+  width:180px;
+  height:180px;
+  background:rgba(139,92,246,.1);
+  filter:blur(70px);
+  top:-100px;
+  left:-80px;
+  pointer-events:none;
+}
+
+@keyframes cardIn{
+  from{
+    opacity:0;
+    transform:translateY(18px);
+  }
+  to{
+    opacity:1;
+    transform:none;
+  }
+}
+
+.hero{
+  text-align:center;
+  padding:55px 25px;
+}
+
+.hero h1{
+  margin:0;
+  font-size:clamp(38px,8vw,76px);
+  font-weight:900;
+  letter-spacing:-4px;
+  background:linear-gradient(
+    100deg,
+    #fff,
+    #c4b5fd,
+    #67e8f9,
+    #f9a8d4,
+    #fff
+  );
+  background-size:300%;
+  -webkit-background-clip:text;
+  color:transparent;
+  animation:shine 7s linear infinite;
+}
+
+@keyframes shine{
+  to{
+    background-position:300%;
+  }
+}
+
+.hero p{
+  color:var(--muted);
+  margin:12px auto 0;
+  max-width:600px;
+  line-height:2;
+}
+
+input,
+textarea{
+  width:100%;
+  border:1px solid rgba(255,255,255,.08);
+  outline:none;
+  background:rgba(0,0,0,.25);
+  color:white;
+  padding:14px 16px;
+  margin:7px 0;
+  border-radius:15px;
+  font-family:inherit;
+  transition:.25s;
+}
+
+input:focus,
+textarea:focus{
+  border-color:rgba(139,92,246,.7);
+  box-shadow:0 0 0 4px rgba(139,92,246,.08);
 }
 
 textarea{
-    min-height:120px;
+  min-height:130px;
+  resize:vertical;
 }
 
 button{
-    border:0;
-    border-radius:10px;
-    padding:12px 18px;
-    margin:5px;
-    background:#7158e2;
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  border:0;
+  color:white;
+  font-family:inherit;
+  font-weight:700;
+  cursor:pointer;
+  padding:13px 20px;
+  margin:5px;
+  border-radius:14px;
+  background:linear-gradient(135deg,#7c3aed,#a855f7);
+  box-shadow:0 8px 30px rgba(124,58,237,.2);
+  transition:.25s;
+}
+
+button:before{
+  content:"";
+  position:absolute;
+  width:80px;
+  height:100%;
+  top:0;
+  left:-100px;
+  transform:skewX(-20deg);
+  background:rgba(255,255,255,.18);
+  transition:.5s;
 }
 
 button:hover{
-    opacity:.85;
+  transform:translateY(-2px);
+  box-shadow:0 12px 40px rgba(124,58,237,.35);
+}
+
+button:hover:before{
+  left:120%;
+}
+
+button.secondary{
+  background:rgba(255,255,255,.06);
+  box-shadow:none;
+  border:1px solid var(--border);
+}
+
+button.danger{
+  background:linear-gradient(135deg,#e11d48,#fb7185);
 }
 
 .hidden{
-    display:none;
+  display:none!important;
 }
 
-.pro{
-    color:#d9b8ff;
-    font-weight:bold;
+.auth{
+  max-width:500px;
+  margin:25px auto;
 }
 
-.id{
-    color:#8d7cff;
-    font-size:20px;
-    font-weight:bold;
+.title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
 }
 
-.error{
-    color:#ff6b6b;
+.title h2{
+  margin:0;
 }
 
-.success{
-    color:#45e6a5;
+.muted{
+  color:var(--muted);
+}
+
+.user-id{
+  display:inline-flex;
+  padding:10px 15px;
+  border-radius:12px;
+  background:rgba(139,92,246,.1);
+  color:#c4b5fd;
+  border:1px solid rgba(139,92,246,.2);
+  font-weight:800;
+  direction:ltr;
+}
+
+.status{
+  display:inline-flex;
+  padding:8px 13px;
+  border-radius:999px;
+  background:rgba(148,163,184,.08);
+  color:#cbd5e1;
+}
+
+.status.pro{
+  color:#fde68a;
+  background:rgba(250,204,21,.1);
+  border:1px solid rgba(250,204,21,.18);
+  box-shadow:0 0 25px rgba(250,204,21,.08);
+}
+
+.plans{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:13px;
+  margin-top:20px;
 }
 
 .plan{
-    background:#202a46;
-    padding:15px;
-    margin:8px 0;
-    border-radius:12px;
+  position:relative;
+  padding:20px 15px;
+  border-radius:20px;
+  background:rgba(255,255,255,.035);
+  border:1px solid var(--border);
+  text-align:center;
+  transition:.3s;
+}
+
+.plan:hover{
+  transform:translateY(-6px);
+  border-color:rgba(139,92,246,.5);
+  box-shadow:0 20px 45px rgba(0,0,0,.25);
+}
+
+.plan.featured{
+  border-color:rgba(236,72,153,.4);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(236,72,153,.1),
+      rgba(139,92,246,.08)
+    );
+}
+
+.plan .name{
+  font-weight:800;
+  font-size:17px;
+}
+
+.plan .price{
+  font-size:24px;
+  font-weight:900;
+  margin:10px 0;
+}
+
+.plan small{
+  color:var(--muted);
+}
+
+.plan button{
+  width:100%;
+  margin:10px 0 0;
+}
+
+.payment{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+
+.paybox{
+  padding:18px;
+  border-radius:18px;
+  background:rgba(255,255,255,.035);
+  border:1px solid var(--border);
+}
+
+.card-number{
+  direction:ltr;
+  text-align:center;
+  font-size:21px;
+  letter-spacing:1px;
+  font-weight:900;
+  margin:12px 0;
+}
+
+.message{
+  margin:12px 0;
+  min-height:24px;
+}
+
+.success{
+  color:var(--green);
+}
+
+.error{
+  color:var(--danger);
+}
+
+.ai-answer{
+  white-space:pre-wrap;
+  line-height:2;
+  margin-top:15px;
+  padding:18px;
+  border-radius:18px;
+  background:rgba(255,255,255,.035);
+}
+
+.owner-dashboard{
+  background:
+    radial-gradient(
+      circle at 100% 0,
+      rgba(139,92,246,.13),
+      transparent 35%
+    ),
+    var(--card);
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:13px;
+}
+
+.stat{
+  padding:20px;
+  border-radius:20px;
+  background:rgba(255,255,255,.035);
+  border:1px solid var(--border);
+}
+
+.stat span{
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.stat strong{
+  display:block;
+  font-size:27px;
+  margin-top:7px;
+}
+
+.owner-tools{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  align-items:center;
+}
+
+.user-result{
+  margin-top:15px;
+  padding:18px;
+  border-radius:18px;
+  background:rgba(0,0,0,.2);
+  border:1px solid var(--border);
+}
+
+.footer{
+  text-align:center;
+  color:#666a82;
+  font-size:12px;
+  padding:30px 0 5px;
+}
+
+@media(max-width:800px){
+  .plans{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .payment{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:520px){
+  #app{
+    width:92%;
+  }
+
+  .nav{
+    height:60px;
+    padding:0 15px;
+    border-radius:18px;
+  }
+
+  .hero{
+    padding:40px 18px;
+  }
+
+  .hero h1{
+    letter-spacing:-2px;
+  }
+
+  .card{
+    padding:18px;
+    border-radius:22px;
+  }
+
+  .plans{
+    grid-template-columns:1fr;
+  }
+
+  .stats{
+    grid-template-columns:1fr;
+  }
+
+  .owner-tools{
+    grid-template-columns:1fr;
+  }
+
+  button{
+    width:calc(100% - 10px);
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div id="app">
 
-<h1>Webzo 🚀</h1>
+<nav class="nav">
+  <div class="logo">WEB<span>ZO</span></div>
+  <div class="badge">AI • PRO</div>
+</nav>
 
-<!-- LOGIN / REGISTER -->
-
-<div id="auth" class="card">
-
-<h2 id="authTitle">ورود</h2>
-
-<input
-id="username"
-placeholder="نام کاربری"
->
-
-<input
-id="password"
-type="password"
-placeholder="رمز عبور"
->
-
-<button onclick="login()">
-ورود
-</button>
-
-<button onclick="register()">
-ثبت‌نام
-</button>
-
-<p id="authMsg"></p>
-
-</div>
+<section class="card hero">
+  <h1>WEBZO</h1>
+  <p>
+    نسل جدید تجربه هوش مصنوعی؛ سریع، مدرن و ساخته‌شده برای شما.
+  </p>
+</section>
 
 
-<!-- USER PANEL -->
+<!-- AUTH -->
 
-<div id="userPanel" class="hidden">
+<section id="auth" class="card auth">
 
-<div class="card">
+  <div class="title">
+    <h2>ورود به حساب</h2>
+    <span>🔐</span>
+  </div>
 
-<h2>👤 حساب من</h2>
+  <p class="muted">
+    برای شروع وارد حساب شو یا یک حساب جدید بساز.
+  </p>
 
-<p>
-User ID:
-</p>
+  <input id="username" placeholder="نام کاربری">
 
-<p
-id="userId"
-class="id"
->
--
-</p>
+  <input
+    id="password"
+    type="password"
+    placeholder="رمز عبور"
+  >
 
-<p>
-وضعیت:
-<span id="status">
-Free 🔒
-</span>
-</p>
+  <button onclick="login()">ورود</button>
+  <button class="secondary" onclick="register()">ساخت حساب</button>
 
-<button onclick="logout()">
-خروج
-</button>
+  <div id="authMsg" class="message"></div>
 
-</div>
+</section>
 
 
-<!-- AI -->
+<!-- USER -->
 
-<div class="card">
+<section id="userPanel" class="hidden">
 
-<h2>🤖 Webzo AI</h2>
+  <div class="card">
 
-<p id="aiStatus">
-برای استفاده از AI باید Pro داشته باشید.
-</p>
+    <div class="title">
+      <div>
+        <h2>حساب من 👤</h2>
+        <p class="muted">پنل شخصی Webzo</p>
+      </div>
 
-<textarea
-id="question"
-placeholder="پیامت رو بنویس..."
-></textarea>
+      <span id="status" class="status">
+        Free
+      </span>
+    </div>
 
-<button onclick="askAI()">
-ارسال
-</button>
+    <p class="muted">شناسه کاربری شما</p>
 
-<p id="aiMsg"></p>
+    <div id="userId" class="user-id">---</div>
 
-<div id="answer"></div>
+    <br>
 
-</div>
+    <button class="secondary" onclick="logout()">
+      خروج از حساب
+    </button>
+
+  </div>
 
 
-<!-- PAYMENT -->
+  <!-- AI -->
 
-<div class="card">
+  <div class="card">
 
-<h2>👑 خرید Pro</h2>
+    <div class="title">
+      <h2>Webzo AI ✨</h2>
+      <span>🤖</span>
+    </div>
 
-<p>
-بعد از پرداخت، رسید + User ID خودت رو در تلگرام ارسال کن.
-</p>
+    <p id="aiStatus" class="muted">
+      برای استفاده از AI اشتراک Pro لازم است.
+    </p>
 
-<p>
-💳 شماره کارت:
-</p>
+    <textarea
+      id="question"
+      placeholder="پیامت رو برای Webzo AI بنویس..."
+    ></textarea>
 
-<h3 id="card">
-در حال دریافت...
-</h3>
+    <button onclick="askAI()">ارسال پیام ✨</button>
 
-<p>
-📱 تلگرام:
-</p>
+    <div id="aiMsg" class="message"></div>
 
-<h3 id="telegram">
-در حال دریافت...
-</h3>
+    <div id="answer" class="ai-answer hidden"></div>
 
-<div class="plan">
-👑 Pro یک ماهه — ۳۰ روز
-</div>
+  </div>
 
-<div class="plan">
-👑 Pro دو ماهه — ۶۰ روز
-</div>
 
-<div class="plan">
-👑 Pro سه ماهه — ۹۰ روز
-</div>
+  <!-- PRO -->
 
-<div class="plan">
-👑 Pro یک ساله — ۳۶۵ روز
-</div>
+  <div class="card">
 
-</div>
+    <div class="title">
+      <div>
+        <h2>Webzo Pro 👑</h2>
+        <p class="muted">
+          امکانات ویژه را فعال کن.
+        </p>
+      </div>
+      <span>💎</span>
+    </div>
 
-</div>
+    <div class="plans">
+
+      <div class="plan">
+        <div class="name">۱ ماهه</div>
+        <div class="price">۹۵ هزار</div>
+        <small>۳۰ روز</small>
+        <button onclick="selectPlan(95000,30)">
+          انتخاب
+        </button>
+      </div>
+
+      <div class="plan">
+        <div class="name">۲ ماهه</div>
+        <div class="price">۱۴۰ هزار</div>
+        <small>۶۰ روز</small>
+        <button onclick="selectPlan(140000,60)">
+          انتخاب
+        </button>
+      </div>
+
+      <div class="plan featured">
+        <div class="name">۳ ماهه ⭐</div>
+        <div class="price">۱۶۰ هزار</div>
+        <small>۹۰ روز</small>
+        <button onclick="selectPlan(160000,90)">
+          انتخاب
+        </button>
+      </div>
+
+      <div class="plan">
+        <div class="name">۱ ساله</div>
+        <div class="price">۴۴۰ هزار</div>
+        <small>۳۶۵ روز</small>
+        <button onclick="selectPlan(440000,365)">
+          انتخاب
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- PAYMENT -->
+
+  <div class="card">
+
+    <div class="title">
+      <h2>پرداخت و ارسال رسید 💳</h2>
+      <span>🧾</span>
+    </div>
+
+    <p class="muted">
+      بعد از واریز، رسید پرداخت و User ID خودت را برای پشتیبانی ارسال کن.
+    </p>
+
+    <div class="payment">
+
+      <div class="paybox">
+
+        <small class="muted">
+          شماره کارت
+        </small>
+
+        <div class="card-number">
+          6219-8618-5082-0092
+        </div>
+
+        <button
+          class="secondary"
+          onclick="copyCard()"
+        >
+          کپی شماره کارت
+        </button>
+
+      </div>
+
+      <div class="paybox">
+
+        <small class="muted">
+          ارسال رسید
+        </small>
+
+        <h3>
+          @Webzo_tem
+        </h3>
+
+        <button onclick="openTelegram()">
+          ارسال رسید در تلگرام
+        </button>
+
+      </div>
+
+    </div>
+
+    <div id="selectedPlan" class="message"></div>
+
+  </div>
+
+</section>
 
 
 <!-- OWNER -->
 
-<div
-id="ownerPanel"
-class="hidden card"
->
+<section id="ownerPanel" class="hidden">
 
-<h2>🔐 پنل مالک</h2>
+  <div class="card owner-dashboard">
 
-<input
-id="ownerPassword"
-type="password"
-placeholder="رمز مالک"
->
+    <div class="title">
 
-<button onclick="ownerLogin()">
-ورود مالک
-</button>
+      <div>
+        <h2>Webzo Control Center</h2>
+        <p class="muted">
+          مدیریت اشتراک‌ها و کاربران
+        </p>
+      </div>
 
-<hr>
+      <span class="badge">
+        OWNER
+      </span>
 
-<input
-id="ownerUserId"
-placeholder="User ID کاربر"
->
+    </div>
 
-<button onclick="findUser()">
-جستجوی کاربر
-</button>
+    <div id="ownerLoginBox">
 
-<p id="ownerUser"></p>
+      <input
+        id="ownerPassword"
+        type="password"
+        placeholder="رمز ورود مالک"
+      >
 
-<button onclick="activatePro(30)">
-۳۰ روز Pro
-</button>
+      <button onclick="ownerLogin()">
+        ورود امن
+      </button>
 
-<button onclick="activatePro(60)">
-۶۰ روز Pro
-</button>
+      <div id="ownerMsg" class="message"></div>
 
-<button onclick="activatePro(90)">
-۹۰ روز Pro
-</button>
+    </div>
 
-<button onclick="activatePro(365)">
-۳۶۵ روز Pro
-</button>
 
-<br>
+    <div id="ownerTools" class="hidden">
 
-<button onclick="revokePro()">
-لغو Pro
-</button>
+      <div class="stats">
 
-<p id="ownerMsg"></p>
+        <div class="stat">
+          <span>وضعیت سیستم</span>
+          <strong>ONLINE</strong>
+        </div>
 
+        <div class="stat">
+          <span>مدیریت اشتراک</span>
+          <strong>PRO</strong>
+        </div>
+
+        <div class="stat">
+          <span>امنیت</span>
+          <strong>ACTIVE</strong>
+        </div>
+
+      </div>
+
+      <br>
+
+      <h3>مدیریت کاربر</h3>
+
+      <div class="owner-tools">
+
+        <input
+          id="ownerUserId"
+          placeholder="WZ-XXXXXXXX"
+        >
+
+        <button onclick="findUser()">
+          جستجو
+        </button>
+
+      </div>
+
+      <div
+        id="ownerUser"
+        class="user-result"
+      >
+        هنوز کاربری انتخاب نشده.
+      </div>
+
+      <h3>فعال‌سازی اشتراک</h3>
+
+      <button onclick="activatePro(30)">
+        ۳۰ روز
+      </button>
+
+      <button onclick="activatePro(60)">
+        ۶۰ روز
+      </button>
+
+      <button onclick="activatePro(90)">
+        ۹۰ روز
+      </button>
+
+      <button onclick="activatePro(365)">
+        ۱ سال
+      </button>
+
+      <br>
+
+      <button
+        class="danger"
+        onclick="revokePro()"
+      >
+        لغو اشتراک
+      </button>
+
+      <div id="ownerActionMsg" class="message"></div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<div class="footer">
+  Webzo © 2026 — Built for the future.
+  <br>
+  <a
+    href="#"
+    onclick="showOwner();return false"
+    style="color:#555;text-decoration:none"
+  >
+    •
+  </a>
 </div>
-
-
-<p>
-<a
-href="#"
-onclick="showOwner();return false"
-style="color:#777"
->
-Owner
-</a>
-</p>
 
 </div>
 
@@ -305,45 +876,39 @@ Owner
 <script>
 
 let token =
-localStorage.getItem("webzo_token");
+  localStorage.getItem("webzo_token");
 
 let ownerToken =
-localStorage.getItem("webzo_owner");
+  localStorage.getItem("webzo_owner");
 
 
-async function api(url, options={}){
+async function api(url,options={}){
 
-    options.headers = {
+  options.headers={
+    "Content-Type":"application/json",
+    ...(options.headers||{})
+  };
 
-        "Content-Type":
-        "application/json",
+  if(token){
+    options.headers.Authorization=
+      "Bearer "+token;
+  }
 
-        ...(options.headers || {})
+  const r=await fetch(url,options);
+  const data=await r.json();
 
-    };
+  if(!r.ok)
+    throw new Error(data.error||"خطا");
 
-    if(token){
+  return data;
+}
 
-        options.headers.Authorization =
-        "Bearer " + token;
 
-    }
+function msg(id,text,type=""){
 
-    const response =
-    await fetch(url,options);
+  document.getElementById(id).innerHTML=
+    `<span class="${type}">${text}</span>`;
 
-    const data =
-    await response.json();
-
-    if(!response.ok){
-
-        throw new Error(
-            data.error || "خطا"
-        );
-
-    }
-
-    return data;
 }
 
 
@@ -351,52 +916,39 @@ async function api(url, options={}){
 
 async function register(){
 
-    try{
+  try{
 
-        const username =
-        document
-        .getElementById("username")
-        .value;
+    const username=
+      document.getElementById("username").value.trim();
 
-        const password =
-        document
-        .getElementById("password")
-        .value;
+    const password=
+      document.getElementById("password").value;
 
-        const data =
-        await api(
-            "/api/register",
-            {
-                method:"POST",
+    const data=await api(
+      "/api/register",
+      {
+        method:"POST",
+        body:JSON.stringify({
+          username,
+          password
+        })
+      }
+    );
 
-                body:JSON.stringify({
-                    username,
-                    password
-                })
-            }
-        );
+    token=data.token;
 
-        token =
-        data.token;
+    localStorage.setItem(
+      "webzo_token",
+      token
+    );
 
-        localStorage.setItem(
-            "webzo_token",
-            token
-        );
+    showUser(data.user);
 
-        showUser(data.user);
+  }catch(e){
 
-    }
-    catch(e){
+    msg("authMsg",e.message,"error");
 
-        document
-        .getElementById("authMsg")
-        .innerHTML =
-        "<span class='error'>"+
-        e.message+
-        "</span>";
-
-    }
+  }
 
 }
 
@@ -405,52 +957,39 @@ async function register(){
 
 async function login(){
 
-    try{
+  try{
 
-        const username =
-        document
-        .getElementById("username")
-        .value;
+    const username=
+      document.getElementById("username").value.trim();
 
-        const password =
-        document
-        .getElementById("password")
-        .value;
+    const password=
+      document.getElementById("password").value;
 
-        const data =
-        await api(
-            "/api/login",
-            {
-                method:"POST",
+    const data=await api(
+      "/api/login",
+      {
+        method:"POST",
+        body:JSON.stringify({
+          username,
+          password
+        })
+      }
+    );
 
-                body:JSON.stringify({
-                    username,
-                    password
-                })
-            }
-        );
+    token=data.token;
 
-        token =
-        data.token;
+    localStorage.setItem(
+      "webzo_token",
+      token
+    );
 
-        localStorage.setItem(
-            "webzo_token",
-            token
-        );
+    showUser(data.user);
 
-        showUser(data.user);
+  }catch(e){
 
-    }
-    catch(e){
+    msg("authMsg",e.message,"error");
 
-        document
-        .getElementById("authMsg")
-        .innerHTML =
-        "<span class='error'>"+
-        e.message+
-        "</span>";
-
-    }
+  }
 
 }
 
@@ -459,65 +998,39 @@ async function login(){
 
 function showUser(user){
 
-    document
+  document
     .getElementById("auth")
-    .classList
-    .add("hidden");
+    .classList.add("hidden");
 
-    document
+  document
     .getElementById("userPanel")
-    .classList
-    .remove("hidden");
+    .classList.remove("hidden");
+
+  document
+    .getElementById("userId")
+    .innerText=user.id;
+
+  const status=
+    document.getElementById("status");
+
+  if(user.pro){
+
+    status.className="status pro";
+
+    status.innerText="👑 PRO فعال";
 
     document
-    .getElementById("userId")
-    .innerText =
-    user.id;
+      .getElementById("aiStatus")
+      .innerText=
+      "👑 اشتراک Pro فعال است.";
 
-    if(user.pro){
+  }else{
 
-        document
-        .getElementById("status")
-        .innerHTML =
-        "<span class='pro'>👑 Pro فعال</span>";
+    status.className="status";
 
-        document
-        .getElementById("aiStatus")
-        .innerText =
-        "👑 Pro فعال است؛ می‌توانی از AI استفاده کنی.";
+    status.innerText="Free 🔒";
 
-    }
-
-    loadPayment();
-
-}
-
-
-/* PAYMENT */
-
-async function loadPayment(){
-
-    try{
-
-        const data =
-        await api("/api/payment");
-
-        document
-        .getElementById("card")
-        .innerText =
-        data.card;
-
-        document
-        .getElementById("telegram")
-        .innerText =
-        data.telegram;
-
-    }
-    catch(e){
-
-        console.log(e);
-
-    }
+  }
 
 }
 
@@ -526,51 +1039,97 @@ async function loadPayment(){
 
 async function askAI(){
 
-    try{
+  try{
 
-        document
-        .getElementById("aiMsg")
-        .innerText =
-        "در حال پردازش...";
+    const question=
+      document
+      .getElementById("question")
+      .value.trim();
 
-        const message =
-        document
-        .getElementById("question")
-        .value;
+    if(!question){
 
-        const data =
-        await api(
-            "/api/ai",
-            {
-                method:"POST",
+      msg(
+        "aiMsg",
+        "اول پیامت رو بنویس.",
+        "error"
+      );
 
-                body:JSON.stringify({
-                    message
-                })
-            }
-        );
-
-        document
-        .getElementById("aiMsg")
-        .innerHTML =
-        "<span class='success'>آماده شد ✅</span>";
-
-        document
-        .getElementById("answer")
-        .innerText =
-        data.answer;
-
+      return;
     }
-    catch(e){
 
-        document
-        .getElementById("aiMsg")
-        .innerHTML =
-        "<span class='error'>"+
-        e.message+
-        "</span>";
+    msg(
+      "aiMsg",
+      "در حال پردازش... ✨"
+    );
 
-    }
+    const data=await api(
+      "/api/ai",
+      {
+        method:"POST",
+        body:JSON.stringify({
+          message:question
+        })
+      }
+    );
+
+    const answer=
+      document.getElementById("answer");
+
+    answer.classList.remove("hidden");
+
+    answer.innerText=
+      data.answer;
+
+    msg(
+      "aiMsg",
+      "پاسخ آماده شد ✓",
+      "success"
+    );
+
+  }catch(e){
+
+    msg(
+      "aiMsg",
+      e.message,
+      "error"
+    );
+
+  }
+
+}
+
+
+/* PAYMENT */
+
+function selectPlan(price,days){
+
+  msg(
+    "selectedPlan",
+    `پلن ${days} روزه انتخاب شد — مبلغ ${price.toLocaleString("fa-IR")} تومان. بعد از واریز، رسید را برای @Webzo_tem ارسال کن.`
+  );
+
+}
+
+function copyCard(){
+
+  navigator.clipboard.writeText(
+    "6219861850820092"
+  );
+
+  msg(
+    "selectedPlan",
+    "شماره کارت کپی شد ✓",
+    "success"
+  );
+
+}
+
+function openTelegram(){
+
+  window.open(
+    "https://t.me/Webzo_tem",
+    "_blank"
+  );
 
 }
 
@@ -579,11 +1138,11 @@ async function askAI(){
 
 function logout(){
 
-    localStorage.removeItem(
-        "webzo_token"
-    );
+  localStorage.removeItem(
+    "webzo_token"
+  );
 
-    location.reload();
+  location.reload();
 
 }
 
@@ -592,20 +1151,17 @@ function logout(){
 
 function showOwner(){
 
-    document
+  document
     .getElementById("auth")
-    .classList
-    .add("hidden");
+    .classList.add("hidden");
 
-    document
+  document
     .getElementById("userPanel")
-    .classList
-    .add("hidden");
+    .classList.add("hidden");
 
-    document
+  document
     .getElementById("ownerPanel")
-    .classList
-    .remove("hidden");
+    .classList.remove("hidden");
 
 }
 
@@ -614,101 +1170,87 @@ function showOwner(){
 
 async function ownerLogin(){
 
-    try{
+  try{
 
-        const password =
-        document
-        .getElementById("ownerPassword")
-        .value;
+    const password=
+      document
+      .getElementById("ownerPassword")
+      .value;
 
-        const response =
-        await fetch(
-            "/api/owner/login",
-            {
-                method:"POST",
+    const r=await fetch(
+      "/api/owner/login",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+        body:JSON.stringify({
+          password
+        })
+      }
+    );
 
-                headers:{
-                    "Content-Type":
-                    "application/json"
-                },
+    const data=await r.json();
 
-                body:JSON.stringify({
-                    password
-                })
-            }
-        );
+    if(!r.ok)
+      throw new Error(
+        data.error
+      );
 
-        const data =
-        await response.json();
+    ownerToken=data.token;
 
-        if(!response.ok){
+    localStorage.setItem(
+      "webzo_owner",
+      ownerToken
+    );
 
-            throw new Error(
-                data.error
-            );
+    document
+      .getElementById("ownerLoginBox")
+      .classList.add("hidden");
 
-        }
+    document
+      .getElementById("ownerTools")
+      .classList.remove("hidden");
 
-        ownerToken =
-        data.token;
+  }catch(e){
 
-        localStorage.setItem(
-            "webzo_owner",
-            ownerToken
-        );
+    msg(
+      "ownerMsg",
+      e.message,
+      "error"
+    );
 
-        document
-        .getElementById("ownerMsg")
-        .innerHTML =
-        "<span class='success'>ورود موفق بود ✅</span>";
-
-    }
-    catch(e){
-
-        document
-        .getElementById("ownerMsg")
-        .innerHTML =
-        "<span class='error'>"+
-        e.message+
-        "</span>";
-
-    }
+  }
 
 }
 
 
 /* OWNER API */
 
-async function ownerApi(
-url,
-options={}
-){
+async function ownerApi(url,options={}){
 
-    options.headers = {
+  options.headers={
+    "Content-Type":
+      "application/json",
 
-        "Content-Type":
-        "application/json",
+    "Authorization":
+      "Bearer "+ownerToken
+  };
 
-        "Authorization":
-        "Bearer " + ownerToken
+  const r=await fetch(
+    url,
+    options
+  );
 
-    };
+  const data=await r.json();
 
-    const response =
-    await fetch(url,options);
+  if(!r.ok)
+    throw new Error(
+      data.error
+    );
 
-    const data =
-    await response.json();
-
-    if(!response.ok){
-
-        throw new Error(
-            data.error
-        );
-
-    }
-
-    return data;
+  return data;
 
 }
 
@@ -717,95 +1259,93 @@ options={}
 
 async function findUser(){
 
-    try{
+  try{
 
-        const id =
-        document
-        .getElementById("ownerUserId")
-        .value;
+    const id=
+      document
+      .getElementById("ownerUserId")
+      .value.trim();
 
-        const data =
-        await ownerApi(
-            "/api/owner/user/"+id
-        );
+    const data=
+      await ownerApi(
+        "/api/owner/user/"+id
+      );
 
-        document
-        .getElementById("ownerUser")
-        .innerHTML =
+    document
+      .getElementById("ownerUser")
+      .innerHTML=
+      `<b>${data.username}</b>
+      <br>
+      <span class="muted">${data.id}</span>
+      <br><br>
+      ${
+        data.pro
+        ? "👑 Pro فعال"
+        : "🔒 Free"
+      }
+      ${
+        data.proUntil
+        ? "<br>انقضا: "+
+          new Date(
+            data.proUntil
+          ).toLocaleString("fa-IR")
+        : ""
+      }`;
 
-        "<b>"+
-        data.username+
-        "</b><br>"+
-        data.id+
-        "<br>"+
-        (
-            data.pro
-            ?
-            "👑 Pro فعال"
-            :
-            "Free 🔒"
-        );
+  }catch(e){
 
-    }
-    catch(e){
+    document
+      .getElementById("ownerUser")
+      .innerText=e.message;
 
-        document
-        .getElementById("ownerUser")
-        .innerText =
-        e.message;
-
-    }
+  }
 
 }
 
 
-/* ACTIVATE PRO */
+/* ACTIVATE */
 
 async function activatePro(days){
 
-    try{
+  try{
 
-        const id =
-        document
-        .getElementById("ownerUserId")
-        .value;
+    const id=
+      document
+      .getElementById("ownerUserId")
+      .value.trim();
 
-        const data =
-        await ownerApi(
-            "/api/owner/pro",
-            {
-                method:"POST",
+    const data=
+      await ownerApi(
+        "/api/owner/pro",
+        {
+          method:"POST",
+          body:JSON.stringify({
+            userId:id,
+            days
+          })
+        }
+      );
 
-                body:JSON.stringify({
+    msg(
+      "ownerActionMsg",
+      "👑 اشتراک با موفقیت فعال شد تا "+
+      new Date(
+        data.proUntil
+      ).toLocaleString("fa-IR"),
+      "success"
+    );
 
-                    userId:id,
+    findUser();
 
-                    days:days
+  }catch(e){
 
-                })
-            }
-        );
+    msg(
+      "ownerActionMsg",
+      e.message,
+      "error"
+    );
 
-        document
-        .getElementById("ownerMsg")
-        .innerHTML =
-
-        "<span class='success'>"+
-        "👑 Pro فعال شد تا "+
-        new Date(
-            data.proUntil
-        ).toLocaleString("fa-IR")+
-        "</span>";
-
-    }
-    catch(e){
-
-        document
-        .getElementById("ownerMsg")
-        .innerText =
-        e.message;
-
-    }
+  }
 
 }
 
@@ -814,38 +1354,40 @@ async function activatePro(days){
 
 async function revokePro(){
 
-    try{
+  try{
 
-        const id =
-        document
-        .getElementById("ownerUserId")
-        .value;
+    const id=
+      document
+      .getElementById("ownerUserId")
+      .value.trim();
 
-        await ownerApi(
-            "/api/owner/revoke",
-            {
-                method:"POST",
+    await ownerApi(
+      "/api/owner/revoke",
+      {
+        method:"POST",
+        body:JSON.stringify({
+          userId:id
+        })
+      }
+    );
 
-                body:JSON.stringify({
-                    userId:id
-                })
-            }
-        );
+    msg(
+      "ownerActionMsg",
+      "اشتراک Pro لغو شد.",
+      "success"
+    );
 
-        document
-        .getElementById("ownerMsg")
-        .innerHTML =
-        "<span class='success'>Pro لغو شد.</span>";
+    findUser();
 
-    }
-    catch(e){
+  }catch(e){
 
-        document
-        .getElementById("ownerMsg")
-        .innerText =
-        e.message;
+    msg(
+      "ownerActionMsg",
+      e.message,
+      "error"
+    );
 
-    }
+  }
 
 }
 
@@ -854,29 +1396,27 @@ async function revokePro(){
 
 (async()=>{
 
-    if(!token)
+  if(!token)
     return;
 
-    try{
+  try{
 
-        const user =
-        await api("/api/me");
+    const user=
+      await api("/api/me");
 
-        showUser(user);
+    showUser(user);
 
-    }
-    catch{
+  }catch{
 
-        localStorage.removeItem(
-            "webzo_token"
-        );
+    localStorage.removeItem(
+      "webzo_token"
+    );
 
-    }
+  }
 
 })();
 
 </script>
 
 </body>
-
 </html>
