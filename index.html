@@ -8,9 +8,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap');
 
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 :root{
   --bg:#05050b;
@@ -25,9 +23,7 @@
   --danger:#fb7185;
 }
 
-html{
-  scroll-behavior:smooth;
-}
+html{scroll-behavior:smooth}
 
 body{
   margin:0;
@@ -70,9 +66,7 @@ body:after{
 }
 
 @keyframes float{
-  to{
-    transform:translate(80px,50px) scale(1.15);
-  }
+  to{transform:translate(80px,50px) scale(1.15)}
 }
 
 #app{
@@ -144,14 +138,8 @@ body:after{
 }
 
 @keyframes cardIn{
-  from{
-    opacity:0;
-    transform:translateY(18px);
-  }
-  to{
-    opacity:1;
-    transform:none;
-  }
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:none}
 }
 
 .hero{
@@ -179,9 +167,7 @@ body:after{
 }
 
 @keyframes shine{
-  to{
-    background-position:300%;
-  }
+  to{background-position:300%}
 }
 
 .hero p{
@@ -279,13 +265,9 @@ button.danger{
   gap:15px;
 }
 
-.title h2{
-  margin:0;
-}
+.title h2{margin:0}
 
-.muted{
-  color:var(--muted);
-}
+.muted{color:var(--muted)}
 
 .user-id{
   display:inline-flex;
@@ -357,9 +339,7 @@ button.danger{
   margin:10px 0;
 }
 
-.plan small{
-  color:var(--muted);
-}
+.plan small{color:var(--muted)}
 
 .plan button{
   width:100%;
@@ -393,13 +373,8 @@ button.danger{
   min-height:24px;
 }
 
-.success{
-  color:var(--green);
-}
-
-.error{
-  color:var(--danger);
-}
+.success{color:var(--green)}
+.error{color:var(--danger)}
 
 .ai-answer{
   white-space:pre-wrap;
@@ -467,55 +442,33 @@ button.danger{
   padding:30px 0 5px;
 }
 
-@media(max-width:800px){
-  .plans{
-    grid-template-columns:repeat(2,1fr);
-  }
+.footer a{
+  color:#555;
+  text-decoration:none;
+}
 
-  .payment{
-    grid-template-columns:1fr;
-  }
+@media(max-width:800px){
+  .plans{grid-template-columns:repeat(2,1fr)}
+  .payment{grid-template-columns:1fr}
 }
 
 @media(max-width:520px){
-  #app{
-    width:92%;
-  }
-
+  #app{width:92%}
   .nav{
     height:60px;
     padding:0 15px;
     border-radius:18px;
   }
-
-  .hero{
-    padding:40px 18px;
-  }
-
-  .hero h1{
-    letter-spacing:-2px;
-  }
-
+  .hero{padding:40px 18px}
+  .hero h1{letter-spacing:-2px}
   .card{
     padding:18px;
     border-radius:22px;
   }
-
-  .plans{
-    grid-template-columns:1fr;
-  }
-
-  .stats{
-    grid-template-columns:1fr;
-  }
-
-  .owner-tools{
-    grid-template-columns:1fr;
-  }
-
-  button{
-    width:calc(100% - 10px);
-  }
+  .plans{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr}
+  .owner-tools{grid-template-columns:1fr}
+  button{width:calc(100% - 10px)}
 }
 </style>
 </head>
@@ -690,10 +643,29 @@ button.danger{
     </div>
 
     <p class="muted">
-      بعد از واریز، رسید پرداخت و User ID خودت را برای پشتیبانی ارسال کن.
+      ابتدا اشتراک موردنظر را انتخاب کن.
     </p>
 
-    <div class="payment">
+    <div id="paymentBox" class="payment">
+
+      <div class="paybox">
+
+        <small class="muted">
+          اشتراک انتخاب‌شده
+        </small>
+
+        <h3 id="selectedPlanName">
+          هنوز اشتراکی انتخاب نشده
+        </h3>
+
+        <div
+          id="selectedPlanPrice"
+          class="card-number"
+        >
+          ---
+        </div>
+
+      </div>
 
       <div class="paybox">
 
@@ -714,25 +686,20 @@ button.danger{
 
       </div>
 
-      <div class="paybox">
-
-        <small class="muted">
-          ارسال رسید
-        </small>
-
-        <h3>
-          @Webzo_tem
-        </h3>
-
-        <button onclick="openTelegram()">
-          ارسال رسید در تلگرام
-        </button>
-
-      </div>
-
     </div>
 
-    <div id="selectedPlan" class="message"></div>
+    <div
+      id="selectedPlan"
+      class="message"
+    ></div>
+
+    <button
+      id="telegramButton"
+      class="hidden"
+      onclick="openTelegram()"
+    >
+      📩 ارسال رسید در تلگرام
+    </button>
 
   </div>
 
@@ -861,10 +828,10 @@ button.danger{
 <div class="footer">
   Webzo © 2026 — Built for the future.
   <br>
+
   <a
     href="#"
     onclick="showOwner();return false"
-    style="color:#555;text-decoration:none"
   >
     •
   </a>
@@ -898,7 +865,9 @@ async function api(url,options={}){
   const data=await r.json();
 
   if(!r.ok)
-    throw new Error(data.error||"خطا");
+    throw new Error(
+      data.error || "خطا"
+    );
 
   return data;
 }
@@ -919,10 +888,12 @@ async function register(){
   try{
 
     const username=
-      document.getElementById("username").value.trim();
+      document.getElementById("username")
+      .value.trim();
 
     const password=
-      document.getElementById("password").value;
+      document.getElementById("password")
+      .value;
 
     const data=await api(
       "/api/register",
@@ -946,7 +917,11 @@ async function register(){
 
   }catch(e){
 
-    msg("authMsg",e.message,"error");
+    msg(
+      "authMsg",
+      e.message,
+      "error"
+    );
 
   }
 
@@ -960,10 +935,12 @@ async function login(){
   try{
 
     const username=
-      document.getElementById("username").value.trim();
+      document.getElementById("username")
+      .value.trim();
 
     const password=
-      document.getElementById("password").value;
+      document.getElementById("password")
+      .value;
 
     const data=await api(
       "/api/login",
@@ -987,7 +964,11 @@ async function login(){
 
   }catch(e){
 
-    msg("authMsg",e.message,"error");
+    msg(
+      "authMsg",
+      e.message,
+      "error"
+    );
 
   }
 
@@ -1101,14 +1082,58 @@ async function askAI(){
 
 /* PAYMENT */
 
+let selectedPlanData={
+  price:0,
+  days:0
+};
+
+
 function selectPlan(price,days){
+
+  selectedPlanData={
+    price,
+    days
+  };
+
+  const names={
+    30:"اشتراک ۱ ماهه",
+    60:"اشتراک ۲ ماهه",
+    90:"اشتراک ۳ ماهه ⭐",
+    365:"اشتراک ۱ ساله"
+  };
+
+  document.getElementById(
+    "selectedPlanName"
+  ).innerText=
+    names[days] ||
+    `اشتراک ${days} روزه`;
+
+  document.getElementById(
+    "selectedPlanPrice"
+  ).innerText=
+    price.toLocaleString("fa-IR") +
+    " تومان";
 
   msg(
     "selectedPlan",
-    `پلن ${days} روزه انتخاب شد — مبلغ ${price.toLocaleString("fa-IR")} تومان. بعد از واریز، رسید را برای @Webzo_tem ارسال کن.`
+    `پلن ${days} روزه انتخاب شد — مبلغ ${price.toLocaleString("fa-IR")} تومان را به شماره کارت بالا واریز کن.`
   );
 
+  document.getElementById(
+    "telegramButton"
+  ).classList.remove("hidden");
+
+  document.getElementById(
+    "paymentBox"
+  ).scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
+
 }
+
+
+/* COPY CARD */
 
 function copyCard(){
 
@@ -1124,10 +1149,37 @@ function copyCard(){
 
 }
 
+
+/* TELEGRAM */
+
 function openTelegram(){
 
+  if(!selectedPlanData.days){
+
+    msg(
+      "selectedPlan",
+      "اول یک اشتراک انتخاب کن.",
+      "error"
+    );
+
+    return;
+
+  }
+
+  const userId=
+    document.getElementById(
+      "userId"
+    ).innerText;
+
+  const text=
+    `سلام، برای خرید Webzo Pro پیام می‌دم.\n\n` +
+    `پلن: ${selectedPlanData.days} روزه\n` +
+    `مبلغ: ${selectedPlanData.price.toLocaleString("fa-IR")} تومان\n` +
+    `User ID: ${userId}\n\n` +
+    `رسید پرداخت را در همین چت ارسال می‌کنم.`;
+
   window.open(
-    "https://t.me/Webzo_tem",
+    `https://t.me/Webzo_tem?text=${encodeURIComponent(text)}`,
     "_blank"
   );
 
@@ -1191,14 +1243,16 @@ async function ownerLogin(){
       }
     );
 
-    const data=await r.json();
+    const data=
+      await r.json();
 
     if(!r.ok)
       throw new Error(
         data.error
       );
 
-    ownerToken=data.token;
+    ownerToken=
+      data.token;
 
     localStorage.setItem(
       "webzo_owner",
@@ -1228,7 +1282,10 @@ async function ownerLogin(){
 
 /* OWNER API */
 
-async function ownerApi(url,options={}){
+async function ownerApi(
+  url,
+  options={}
+){
 
   options.headers={
     "Content-Type":
@@ -1238,12 +1295,14 @@ async function ownerApi(url,options={}){
       "Bearer "+ownerToken
   };
 
-  const r=await fetch(
-    url,
-    options
-  );
+  const r=
+    await fetch(
+      url,
+      options
+    );
 
-  const data=await r.json();
+  const data=
+    await r.json();
 
   if(!r.ok)
     throw new Error(
@@ -1296,7 +1355,8 @@ async function findUser(){
 
     document
       .getElementById("ownerUser")
-      .innerText=e.message;
+      .innerText=
+      e.message;
 
   }
 
