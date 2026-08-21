@@ -1,2405 +1,882 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
-<title>Webzo — AI Website Builder</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webzo</title>
 
 <style>
-
-*{
- box-sizing:border-box;
-}
-
-:root{
- --blue:#00aaff;
- --pink:#ff1493;
- --purple:#784cff;
- --bg:#03040a;
- --card:rgba(13,15,28,.76);
-}
-
-html{
- scroll-behavior:smooth;
-}
-
 body{
- margin:0;
- min-height:100vh;
- background:#03040a;
- color:#fff;
- font-family:Arial,Tahoma,sans-serif;
- overflow-x:hidden;
+    margin:0;
+    font-family:Tahoma,Arial;
+    background:#0b1020;
+    color:white;
 }
 
-/* =========================================================
-   ANIMATED BACKGROUND
-========================================================= */
-
-body::before{
- content:"";
- position:fixed;
- width:500px;
- height:500px;
- border-radius:50%;
- background:#00aaff;
- filter:blur(150px);
- opacity:.16;
- top:-250px;
- left:-180px;
- z-index:-2;
- animation:blueMove 10s ease-in-out infinite alternate;
+.container{
+    max-width:700px;
+    margin:auto;
+    padding:25px;
 }
-
-body::after{
- content:"";
- position:fixed;
- width:500px;
- height:500px;
- border-radius:50%;
- background:#ff1493;
- filter:blur(150px);
- opacity:.14;
- bottom:-250px;
- right:-180px;
- z-index:-2;
- animation:pinkMove 12s ease-in-out infinite alternate;
-}
-
-@keyframes blueMove{
- 0%{transform:translate(0,0) scale(1)}
- 100%{transform:translate(180px,120px) scale(1.25)}
-}
-
-@keyframes pinkMove{
- 0%{transform:translate(0,0) scale(1)}
- 100%{transform:translate(-160px,-120px) scale(1.2)}
-}
-
-body .gridGlow{
- position:fixed;
- inset:0;
- z-index:-3;
- pointer-events:none;
- opacity:.12;
- background-image:
- linear-gradient(#00aaff0d 1px,transparent 1px),
- linear-gradient(90deg,#ff14930a 1px,transparent 1px);
- background-size:45px 45px;
- mask-image:linear-gradient(to bottom,#000,transparent);
-}
-
-/* =========================================================
-   APP
-========================================================= */
-
-.app{
- width:min(700px,100%);
- margin:auto;
- padding:12px 15px 110px;
-}
-
-/* =========================================================
-   TOP
-========================================================= */
-
-.top{
- height:64px;
- display:flex;
- align-items:center;
- justify-content:space-between;
- position:sticky;
- top:0;
- z-index:30;
- backdrop-filter:blur(25px);
-}
-
-.brand{
- display:flex;
- align-items:center;
- gap:10px;
- font-weight:900;
- letter-spacing:2px;
-}
-
-.logo{
- width:44px;
- height:44px;
- display:grid;
- place-items:center;
- border-radius:14px;
- background:linear-gradient(135deg,var(--blue),var(--purple),var(--pink));
- box-shadow:
- 0 0 20px #00aaff55,
- 0 0 30px #ff149344;
- animation:logoPulse 3s ease-in-out infinite;
-}
-
-@keyframes logoPulse{
- 50%{
-  box-shadow:
-  0 0 35px #00aaff88,
-  0 0 45px #ff149366;
- }
-}
-
-.badge{
- display:inline-block;
- padding:7px 11px;
- border-radius:30px;
- font-size:10px;
- font-weight:bold;
- color:#fff;
- background:#ffffff0b;
- border:1px solid #ffffff18;
-}
-
-.badge.proBadge{
- color:#ff8dcc;
- border-color:#ff149366;
- background:#ff149315;
-}
-
-/* =========================================================
-   HERO
-========================================================= */
-
-.hero{
- padding:28px 5px 20px;
- animation:up .6s ease;
-}
-
-.hero small{
- color:#777;
-}
-
-.hero h1{
- font-size:38px;
- line-height:1.35;
- margin:8px 0;
- font-weight:900;
-}
-
-.gradient{
- background:linear-gradient(
- 90deg,
- #00aaff,
- #fff,
- #ff1493
- );
- -webkit-background-clip:text;
- color:transparent;
-}
-
-.hero p{
- color:#888;
- line-height:1.9;
-}
-
-/* =========================================================
-   CARDS
-========================================================= */
 
 .card{
- margin-top:15px;
- padding:20px;
- border-radius:25px;
- background:var(--card);
- border:1px solid #ffffff10;
- backdrop-filter:blur(22px);
- box-shadow:
- 0 20px 70px #0009,
- inset 0 0 40px #ffffff03;
- animation:up .7s ease;
+    background:#151d33;
+    padding:20px;
+    margin:15px 0;
+    border-radius:18px;
 }
 
-.titleRow{
- display:flex;
- justify-content:space-between;
- align-items:center;
- margin-bottom:15px;
-}
-
-.titleRow h2{
- margin:0;
- font-size:18px;
-}
-
-.titleRow span{
- color:#666;
- font-size:10px;
-}
-
-/* =========================================================
-   QUICK GRID
-========================================================= */
-
-.grid{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:11px;
-}
-
-.quick{
- padding:18px 14px;
- border-radius:18px;
- background:#080a13;
- border:1px solid #292b40;
- cursor:pointer;
- transition:.25s;
-}
-
-.quick:hover{
- transform:translateY(-4px);
- border-color:#00aaff88;
- box-shadow:
- 0 0 25px #00aaff18,
- 0 0 25px #ff149312;
-}
-
-.quickIcon{
- font-size:23px;
-}
-
-.quick b{
- display:block;
- margin-top:9px;
-}
-
-.quick small{
- display:block;
- color:#666;
- margin-top:5px;
-}
-
-/* =========================================================
-   FORMS
-========================================================= */
-
-label{
- display:block;
- color:#ddd;
- font-size:13px;
- margin:16px 0 8px;
-}
-
-textarea,
-input,
-select{
- width:100%;
- padding:15px;
- border-radius:15px;
- background:#060811;
- color:#fff;
- border:1px solid #292b40;
- outline:none;
- font-size:14px;
- transition:.25s;
+input,textarea{
+    width:100%;
+    box-sizing:border-box;
+    padding:13px;
+    margin:8px 0;
+    border-radius:10px;
+    border:1px solid #34405f;
+    background:#0d1427;
+    color:white;
 }
 
 textarea{
- min-height:110px;
- resize:vertical;
+    min-height:120px;
 }
-
-textarea:focus,
-input:focus,
-select:focus{
- border-color:#00aaff;
- box-shadow:
- 0 0 20px #00aaff20,
- 0 0 20px #ff149310;
-}
-
-/* =========================================================
-   BUTTONS
-========================================================= */
 
 button{
- width:100%;
- padding:15px;
- border:0;
- border-radius:16px;
- margin-top:15px;
- color:#fff;
- font-weight:bold;
- font-size:15px;
- cursor:pointer;
- background:
- linear-gradient(
- 100deg,
- #008cff,
- #784cff,
- #ff1493
- );
- box-shadow:0 0 25px #008cff25;
- transition:.25s;
+    border:0;
+    border-radius:10px;
+    padding:12px 18px;
+    margin:5px;
+    background:#7158e2;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
 }
 
 button:hover{
- transform:translateY(-2px);
- box-shadow:
- 0 0 30px #008cff55,
- 0 0 35px #ff149344;
+    opacity:.85;
 }
 
-button:active{
- transform:scale(.97);
+.hidden{
+    display:none;
 }
-
-.secondary{
- background:#0b0d18;
- border:1px solid #303248;
-}
-
-/* =========================================================
-   STATS
-========================================================= */
-
-.stats{
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:10px;
-}
-
-.stat{
- text-align:center;
- padding:14px 4px;
- border-radius:17px;
- background:#080a13;
- border:1px solid #25263a;
-}
-
-.stat b{
- font-size:20px;
-}
-
-.stat small{
- display:block;
- color:#666;
- margin-top:5px;
-}
-
-/* =========================================================
-   LOADER
-========================================================= */
-
-#building{
- display:none;
- text-align:center;
- padding:25px;
-}
-
-.loader{
- width:48px;
- height:48px;
- margin:auto;
- border-radius:50%;
- border:3px solid #20212c;
- border-top-color:#00aaff;
- border-right-color:#ff1493;
- animation:spin .8s linear infinite;
-}
-
-@keyframes spin{
- to{
-  transform:rotate(360deg);
- }
-}
-
-/* =========================================================
-   PREVIEW
-========================================================= */
-
-#result{
- display:none;
-}
-
-.preview{
- background:#f5f6fa;
- color:#111;
- border-radius:18px;
- overflow:hidden;
- box-shadow:0 0 40px #00aaff18;
-}
-
-.siteNav{
- padding:14px 17px;
- background:#10121d;
- color:#fff;
- display:flex;
- justify-content:space-between;
- align-items:center;
-}
-
-.siteLogo{
- color:#00aaff;
- font-weight:bold;
-}
-
-.siteHero{
- padding:50px 20px;
- text-align:center;
- color:#fff;
- background:
- linear-gradient(
- 135deg,
- #101b35,
- #29102e
- );
-}
-
-.siteHero h2{
- font-size:27px;
- margin:5px 0 10px;
-}
-
-.siteHero p{
- color:#bbb;
- line-height:1.7;
-}
-
-.siteButton{
- display:inline-block;
- margin-top:10px;
- padding:11px 20px;
- border-radius:10px;
- color:#fff;
- background:
- linear-gradient(
- 90deg,
- #008cff,
- #ff1493
- );
-}
-
-.siteContent{
- padding:22px;
-}
-
-.siteContent p{
- line-height:1.8;
-}
-
-.siteFeature{
- padding:14px;
- margin-top:9px;
- border:1px solid #eee;
- border-radius:12px;
- background:#fff;
-}
-
-/* =========================================================
-   ACTIONS
-========================================================= */
-
-.actions{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:10px;
- margin-top:12px;
-}
-
-/* =========================================================
-   EDITOR
-========================================================= */
-
-.editor{
- display:none;
-}
-
-.editorTools{
- display:grid;
- grid-template-columns:1fr 1fr;
- gap:9px;
-}
-
-.tool{
- padding:14px;
- border-radius:15px;
- background:#080a13;
- border:1px solid #292b40;
- cursor:pointer;
- transition:.2s;
-}
-
-.tool:hover{
- border-color:#00aaff88;
- transform:translateY(-2px);
-}
-
-.locked{
- opacity:.4;
-}
-
-.editorPreview{
- margin-top:15px;
-}
-
-/* =========================================================
-   PRO
-========================================================= */
 
 .pro{
- border-color:#ff149355;
- background:
- radial-gradient(
- circle at 100% 0,
- #ff149322,
- transparent 40%
- ),
- #0c0b15;
+    color:#d9b8ff;
+    font-weight:bold;
 }
 
-.pro p{
- color:#999;
- line-height:1.8;
+.id{
+    color:#8d7cff;
+    font-size:20px;
+    font-weight:bold;
 }
 
-.features{
- display:grid;
- gap:9px;
- color:#ccc;
- font-size:13px;
+.error{
+    color:#ff6b6b;
 }
 
-.feature span{
- color:#48bfff;
+.success{
+    color:#45e6a5;
 }
 
-.proFeatureList{
- margin-top:15px;
-}
-
-/* =========================================================
-   AI
-========================================================= */
-
-.aiResult{
- display:none;
- margin-top:15px;
- padding:17px;
- border-radius:17px;
- background:#050711;
- border:1px solid #292b40;
- color:#ccc;
- line-height:2;
- white-space:pre-wrap;
-}
-
-.aiStatus{
- display:none;
- margin-top:12px;
- text-align:center;
- color:#777;
-}
-
-/* =========================================================
-   MODAL
-========================================================= */
-
-.modal{
- display:none;
- position:fixed;
- inset:0;
- z-index:100;
- background:#000b;
- backdrop-filter:blur(12px);
- align-items:flex-end;
-}
-
-.modalBox{
- width:min(700px,100%);
- max-height:90vh;
- overflow:auto;
- padding:24px;
- background:#0d0f1c;
- border:1px solid #303248;
- border-radius:28px 28px 0 0;
- animation:modal .3s ease;
-}
-
-.close{
- width:40px;
- height:40px;
- padding:0;
- margin:0 0 12px;
- float:left;
- border-radius:50%;
- background:#1c1e2b;
- border:1px solid #303248;
-}
-
-@keyframes modal{
- from{
-  transform:translateY(100%);
-  opacity:.5;
- }
- to{
-  transform:translateY(0);
-  opacity:1;
- }
-}
-
-/* =========================================================
-   BOTTOM NAV
-========================================================= */
-
-.bottom{
- position:fixed;
- bottom:12px;
- left:50%;
- transform:translateX(-50%);
- width:min(660px,calc(100% - 24px));
- padding:8px;
- display:grid;
- grid-template-columns:repeat(5,1fr);
- background:#090b15e8;
- border:1px solid #292b40;
- border-radius:22px;
- backdrop-filter:blur(25px);
- z-index:50;
- box-shadow:0 0 35px #0008;
-}
-
-.nav{
- text-align:center;
- padding:8px 2px;
- border-radius:15px;
- cursor:pointer;
- transition:.2s;
-}
-
-.nav.active{
- background:#ffffff08;
-}
-
-.nav div:first-child{
- font-size:19px;
-}
-
-.nav small{
- color:#777;
- font-size:9px;
-}
-
-/* =========================================================
-   FOOTER
-========================================================= */
-
-.footer{
- text-align:center;
- color:#444;
- padding:30px;
- font-size:10px;
-}
-
-@keyframes up{
- from{
-  opacity:0;
-  transform:translateY(18px);
- }
- to{
-  opacity:1;
-  transform:translateY(0);
- }
-}
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media(max-width:500px){
-
- .hero h1{
-  font-size:32px;
- }
-
- .grid{
-  grid-template-columns:1fr 1fr;
- }
-
- .actions{
-  grid-template-columns:1fr;
- }
-
- .editorTools{
-  grid-template-columns:1fr;
- }
-
+.plan{
+    background:#202a46;
+    padding:15px;
+    margin:8px 0;
+    border-radius:12px;
 }
 </style>
-
 </head>
 
 <body>
 
-<div class="gridGlow"></div>
+<div class="container">
 
-<div class="app">
+<h1>Webzo 🚀</h1>
 
-<!-- TOP -->
+<!-- LOGIN / REGISTER -->
 
-<div class="top">
+<div id="auth" class="card">
 
- <div class="brand">
+<h2 id="authTitle">ورود</h2>
 
-  <div class="logo">W</div>
+<input
+id="username"
+placeholder="نام کاربری"
+>
 
-  WEBZO
+<input
+id="password"
+type="password"
+placeholder="رمز عبور"
+>
 
- </div>
+<button onclick="login()">
+ورود
+</button>
 
- <div
-  class="badge"
-  id="planBadge"
- >
-  FREE
- </div>
+<button onclick="register()">
+ثبت‌نام
+</button>
 
-</div>
-
-
-<!-- HERO -->
-
-<div class="hero">
-
- <small>خوش اومدی 👋</small>
-
- <h1>
-  ایده‌تو بده،
-  <br>
-  <span class="gradient">
-   سایتتو بساز.
-  </span>
- </h1>
-
- <p>
-  Webzo ایده تو رو به یک سایت تبدیل می‌کنه.
-  طراحی کن، ویرایش کن و پروژه‌هات رو مدیریت کن.
- </p>
+<p id="authMsg"></p>
 
 </div>
 
 
-<!-- QUICK -->
+<!-- USER PANEL -->
+
+<div id="userPanel" class="hidden">
 
 <div class="card">
 
- <div class="titleRow">
+<h2>👤 حساب من</h2>
 
-  <h2>⚡ دسترسی سریع</h2>
+<p>
+User ID:
+</p>
 
-  <span>WEBZO</span>
-
- </div>
-
-
- <div class="grid">
-
-  <div
-   class="quick"
-   onclick="goCreate()"
-  >
-   <div class="quickIcon">✨</div>
-   <b>ساخت سایت</b>
-   <small>پروژه جدید</small>
-  </div>
-
-
-  <div
-   class="quick"
-   onclick="openAI()"
-  >
-   <div class="quickIcon">🧠</div>
-   <b>Webzo AI</b>
-   <small id="aiQuickText">
-    فقط Pro
-   </small>
-  </div>
-
-
-  <div
-   class="quick"
-   onclick="showProjects()"
-  >
-   <div class="quickIcon">🌐</div>
-   <b>سایت‌های من</b>
-   <small>پروژه‌ها</small>
-  </div>
-
-
-  <div
-   class="quick"
-   onclick="openPro()"
-  >
-   <div class="quickIcon">👑</div>
-   <b>Webzo Pro</b>
-   <small>ارتقا</small>
-  </div>
-
- </div>
-
-</div>
-
-
-<!-- STATS -->
-
-<div class="card">
-
- <div class="stats">
-
-  <div class="stat">
-   <b id="daily">0/1</b>
-   <small>ساخت امروز</small>
-  </div>
-
-  <div class="stat">
-   <b id="projectCount">0</b>
-   <small>پروژه</small>
-  </div>
-
-  <div class="stat">
-   <b id="planText">FREE</b>
-   <small>پلن فعلی</small>
-  </div>
-
- </div>
-
-</div>
-
-
-<!-- CREATE -->
-
-<div
- class="card"
- id="create"
+<p
+id="userId"
+class="id"
 >
-
- <div class="titleRow">
-
-  <h2>🚀 ساخت سایت</h2>
-
-  <span id="buildLimit">
-   FREE • 1/DAY
-  </span>
-
- </div>
-
-
- <label>
-  💡 سایتت درباره چیه؟
- </label>
-
- <textarea
-  id="idea"
-  placeholder="مثلاً یک فروشگاه لباس اسپرت با طراحی لوکس..."
- ></textarea>
-
-
- <label>
-  🎨 سبک سایت
- </label>
-
- <select id="style">
-
-  <option>Dark Neon</option>
-  <option>Luxury</option>
-  <option>Minimal</option>
-  <option>Gaming</option>
-  <option>Business</option>
-
- </select>
-
-
- <label>
-  🌈 رنگ اصلی
- </label>
-
- <select id="color">
-
-  <option>آبی + صورتی نئونی</option>
-  <option>بنفش + آبی</option>
-  <option>قرمز + مشکی</option>
-  <option>سبز نئونی</option>
-
- </select>
-
-
- <button onclick="buildSite()">
-  ⚡ ساخت سایت
- </button>
-
-
- <div id="building">
-
-  <div class="loader"></div>
-
-  <p id="loadingText">
-   در حال تحلیل ایده...
-  </p>
-
- </div>
-
-</div>
-
-
-<!-- RESULT -->
-
-<div
- class="card"
- id="result"
->
-
- <div class="titleRow">
-
-  <h2>✨ سایت شما</h2>
-
-  <span>
-   LIVE PREVIEW
-  </span>
-
- </div>
-
-
- <div
-  class="preview"
-  id="preview"
- >
-
-  <div class="siteNav">
-
-   <div
-    class="siteLogo"
-    id="pLogo"
-   >
-    WEBZO
-   </div>
-
-   <div>☰</div>
-
-  </div>
-
-
-  <div class="siteHero">
-
-   <h2 id="pTitle">
-    Website
-   </h2>
-
-   <p id="pDesc">
-    سایت ساخته‌شده با Webzo
-   </p>
-
-   <div
-    class="siteButton"
-    id="pButton"
-   >
-    شروع کنید
-   </div>
-
-  </div>
-
-
-  <div class="siteContent">
-
-   <h3>
-    درباره ما
-   </h3>
-
-   <p id="pAbout">
-    سایت شما با Webzo ساخته شده است.
-   </p>
-
-
-   <div class="siteFeature">
-    ⚡ طراحی مدرن
-   </div>
-
-   <div class="siteFeature">
-    📱 مناسب موبایل
-   </div>
-
-   <div class="siteFeature">
-    ✨ طراحی حرفه‌ای
-   </div>
-
-  </div>
-
- </div>
-
-
- <div class="actions">
-
-  <button
-   class="secondary"
-   onclick="openEditor()"
-  >
-   ✏️ ویرایش سایت
-  </button>
-
-
-  <button
-   class="secondary"
-   onclick="saveProject()"
-  >
-   💾 ذخیره
-  </button>
-
- </div>
-
-</div>
-
-
-<!-- EDITOR -->
-
-<div
- class="card editor"
- id="editor"
->
-
- <div class="titleRow">
-
-  <h2>✏️ ویرایشگر Webzo</h2>
-
-  <span>EDITOR</span>
-
- </div>
-
-
- <div class="editorTools">
-
-  <div
-   class="tool"
-   onclick="editTitle()"
-  >
-   📝 تغییر متن
-  </div>
-
-
-  <div
-   class="tool"
-   onclick="changeColor()"
-  >
-   🎨 تغییر رنگ
-  </div>
-
-
-  <div
-   class="tool locked"
-   onclick="proFeature('افزودن بخش')"
-  >
-   🧩 افزودن بخش 👑
-  </div>
-
-
-  <div
-   class="tool locked"
-   onclick="proFeature('منوی سفارشی')"
-  >
-   🧭 منوی سفارشی 👑
-  </div>
-
-
-  <div
-   class="tool locked"
-   onclick="proFeature('انیمیشن حرفه‌ای')"
-  >
-   ✨ انیمیشن حرفه‌ای 👑
-  </div>
-
-
-  <div
-   class="tool locked"
-   onclick="proFeature('ویرایش با AI')"
-  >
-   🧠 ویرایش با AI 👑
-  </div>
-
- </div>
-
-
- <div class="editorPreview">
-
-  <div id="editorPreview"></div>
-
- </div>
-
-
- <button onclick="saveProject()">
-  💾 ذخیره تغییرات
- </button>
+-
+</p>
+
+<p>
+وضعیت:
+<span id="status">
+Free 🔒
+</span>
+</p>
+
+<button onclick="logout()">
+خروج
+</button>
 
 </div>
 
 
 <!-- AI -->
 
-<div class="card pro">
+<div class="card">
 
- <div class="badge proBadge">
-  👑 PRO AI
- </div>
+<h2>🤖 Webzo AI</h2>
 
- <h2>
-  🧠 Webzo AI
- </h2>
+<p id="aiStatus">
+برای استفاده از AI باید Pro داشته باشید.
+</p>
 
- <p>
-  ایده‌ات را بده تا برای اسم، طراحی، ساختار،
-  امکانات و مدل درآمد یک پیشنهاد حرفه‌ای بسازد.
- </p>
+<textarea
+id="question"
+placeholder="پیامت رو بنویس..."
+></textarea>
 
- <button onclick="openAI()">
-  ✨ استفاده از Webzo AI
- </button>
+<button onclick="askAI()">
+ارسال
+</button>
 
-</div>
+<p id="aiMsg"></p>
 
-
-<!-- PRO -->
-
-<div class="card pro">
-
- <div class="badge proBadge">
-  👑 WEBZO PRO
- </div>
-
- <h2>
-  سایت حرفه‌ای بساز.
- </h2>
-
- <p>
-  محدودیت نسخه رایگان را بردار و ابزارهای حرفه‌ای
-  Webzo را فعال کن.
- </p>
-
-
- <div class="features proFeatureList">
-
-  <div class="feature">
-   <span>✓</span>
-   ساخت سایت نامحدود
-  </div>
-
-  <div class="feature">
-   <span>✓</span>
-   Webzo AI
-  </div>
-
-  <div class="feature">
-   <span>✓</span>
-   دامنه اختصاصی
-  </div>
-
-  <div class="feature">
-   <span>✓</span>
-   منوی سفارشی
-  </div>
-
-  <div class="feature">
-   <span>✓</span>
-   صفحات بیشتر
-  </div>
-
-  <div class="feature">
-   <span>✓</span>
-   فروشگاه
-  </div>
-
-  <div class="feature">
-   <span>✓</span>
-   انیمیشن حرفه‌ای
-  </div>
-
-  <div class="feature">
-   <span>✓</span>
-   SEO
-  </div>
-
- </div>
-
-
- <button onclick="openPro()">
-  👑 فعال‌سازی Pro
- </button>
+<div id="answer"></div>
 
 </div>
 
 
-<div class="footer">
- WEBZO ✦ BUILD THE WEB
+<!-- PAYMENT -->
+
+<div class="card">
+
+<h2>👑 خرید Pro</h2>
+
+<p>
+بعد از پرداخت، رسید + User ID خودت رو در تلگرام ارسال کن.
+</p>
+
+<p>
+💳 شماره کارت:
+</p>
+
+<h3 id="card">
+در حال دریافت...
+</h3>
+
+<p>
+📱 تلگرام:
+</p>
+
+<h3 id="telegram">
+در حال دریافت...
+</h3>
+
+<div class="plan">
+👑 Pro یک ماهه — ۳۰ روز
+</div>
+
+<div class="plan">
+👑 Pro دو ماهه — ۶۰ روز
+</div>
+
+<div class="plan">
+👑 Pro سه ماهه — ۹۰ روز
+</div>
+
+<div class="plan">
+👑 Pro یک ساله — ۳۶۵ روز
+</div>
+
 </div>
 
 </div>
 
 
-<!-- BOTTOM NAV -->
-
-<div class="bottom">
-
- <div
-  class="nav active"
-  onclick="home(this)"
- >
-  <div>⌂</div>
-  <small>خانه</small>
- </div>
-
-
- <div
-  class="nav"
-  onclick="goCreate(this)"
- >
-  <div>✨</div>
-  <small>ساخت</small>
- </div>
-
-
- <div
-  class="nav"
-  onclick="openAI()"
- >
-  <div>🧠</div>
-  <small>AI</small>
- </div>
-
-
- <div
-  class="nav"
-  onclick="showProjects()"
- >
-  <div>🌐</div>
-  <small>سایت‌ها</small>
- </div>
-
-
- <div
-  class="nav"
-  onclick="openPro()"
- >
-  <div>👑</div>
-  <small>Pro</small>
- </div>
-
-</div>
-
-
-<!-- PRO MODAL -->
+<!-- OWNER -->
 
 <div
- class="modal"
- id="proModal"
+id="ownerPanel"
+class="hidden card"
 >
 
- <div class="modalBox">
+<h2>🔐 پنل مالک</h2>
 
-  <button
-   class="close"
-   onclick="closeModal('proModal')"
-  >
-   ×
-  </button>
+<input
+id="ownerPassword"
+type="password"
+placeholder="رمز مالک"
+>
 
+<button onclick="ownerLogin()">
+ورود مالک
+</button>
 
-  <div class="badge proBadge">
-   👑 WEBZO PRO
-  </div>
+<hr>
 
+<input
+id="ownerUserId"
+placeholder="User ID کاربر"
+>
 
-  <h2>
-   Webzo رو آزاد کن.
-  </h2>
+<button onclick="findUser()">
+جستجوی کاربر
+</button>
 
+<p id="ownerUser"></p>
 
-  <p style="color:#999;line-height:1.8">
-   نسخه Pro ساخت نامحدود، AI و امکانات حرفه‌ای
-   را فعال می‌کند.
-  </p>
+<button onclick="activatePro(30)">
+۳۰ روز Pro
+</button>
 
+<button onclick="activatePro(60)">
+۶۰ روز Pro
+</button>
 
-  <div class="features">
+<button onclick="activatePro(90)">
+۹۰ روز Pro
+</button>
 
-   <div class="feature">
-    <span>✓</span> ساخت نامحدود
-   </div>
+<button onclick="activatePro(365)">
+۳۶۵ روز Pro
+</button>
 
-   <div class="feature">
-    <span>✓</span> Webzo AI
-   </div>
+<br>
 
-   <div class="feature">
-    <span>✓</span> دامنه اختصاصی
-   </div>
+<button onclick="revokePro()">
+لغو Pro
+</button>
 
-   <div class="feature">
-    <span>✓</span> منوی سفارشی
-   </div>
-
-   <div class="feature">
-    <span>✓</span> صفحات نامحدود
-   </div>
-
-   <div class="feature">
-    <span>✓</span> خروجی بدون واترمارک
-   </div>
-
-  </div>
-
-
-  <button onclick="showProActivation()">
-   👑 فعال‌سازی Pro
-  </button>
-
-
-  <div
-   id="proActivation"
-   style="display:none;margin-top:15px"
-  >
-
-   <input
-    id="proCode"
-    type="password"
-    placeholder="کد فعال‌سازی Pro"
-   >
-
-   <button onclick="activatePro()">
-    🔐 تأیید و فعال‌سازی
-   </button>
-
-  </div>
-
- </div>
+<p id="ownerMsg"></p>
 
 </div>
 
 
-<!-- AI MODAL -->
-
-<div
- class="modal"
- id="aiModal"
+<p>
+<a
+href="#"
+onclick="showOwner();return false"
+style="color:#777"
 >
-
- <div class="modalBox">
-
-  <button
-   class="close"
-   onclick="closeModal('aiModal')"
-  >
-   ×
-  </button>
-
-
-  <div class="badge proBadge">
-   🧠 PRO AI
-  </div>
-
-
-  <h2>
-   Webzo AI
-  </h2>
-
-
-  <p style="color:#999;line-height:1.8">
-   ایده سایتت رو بنویس تا Webzo AI یک پیشنهاد حرفه‌ای
-   برایت طراحی کند.
-  </p>
-
-
-  <textarea
-   id="aiInput"
-   placeholder="مثلاً یک سایت خفن برای ماشین‌های ایرانی..."
-  ></textarea>
-
-
-  <button onclick="generateAI()">
-   ✨ تولید ایده حرفه‌ای
-  </button>
-
-
-  <div
-   class="aiStatus"
-   id="aiStatus"
-  >
-   🧠 Webzo AI در حال فکر کردن...
-  </div>
-
-
-  <div
-   class="aiResult"
-   id="aiResult"
-  ></div>
-
- </div>
+Owner
+</a>
+</p>
 
 </div>
 
 
 <script>
 
-/* =========================================================
-   GLOBAL
-========================================================= */
+let token =
+localStorage.getItem("webzo_token");
 
-let currentProject = null;
-let isPro = false;
+let ownerToken =
+localStorage.getItem("webzo_owner");
 
 
-/* =========================================================
-   PLAN
-========================================================= */
+async function api(url, options={}){
 
-async function loadPlan(){
+    options.headers = {
 
- try{
+        "Content-Type":
+        "application/json",
 
-  const response =
-   await fetch("/api/me");
+        ...(options.headers || {})
 
-  const data =
-   await response.json();
+    };
 
-  isPro =
-   data.plan === "pro";
+    if(token){
 
-  updatePlanUI();
+        options.headers.Authorization =
+        "Bearer " + token;
 
- }catch(error){
+    }
 
-  isPro = false;
+    const response =
+    await fetch(url,options);
 
-  updatePlanUI();
+    const data =
+    await response.json();
 
- }
+    if(!response.ok){
+
+        throw new Error(
+            data.error || "خطا"
+        );
+
+    }
+
+    return data;
+}
+
+
+/* REGISTER */
+
+async function register(){
+
+    try{
+
+        const username =
+        document
+        .getElementById("username")
+        .value;
+
+        const password =
+        document
+        .getElementById("password")
+        .value;
+
+        const data =
+        await api(
+            "/api/register",
+            {
+                method:"POST",
+
+                body:JSON.stringify({
+                    username,
+                    password
+                })
+            }
+        );
+
+        token =
+        data.token;
+
+        localStorage.setItem(
+            "webzo_token",
+            token
+        );
+
+        showUser(data.user);
+
+    }
+    catch(e){
+
+        document
+        .getElementById("authMsg")
+        .innerHTML =
+        "<span class='error'>"+
+        e.message+
+        "</span>";
+
+    }
 
 }
 
 
-function updatePlanUI(){
+/* LOGIN */
 
- const badge =
-  document.getElementById("planBadge");
+async function login(){
 
- const planText =
-  document.getElementById("planText");
+    try{
 
- const buildLimit =
-  document.getElementById("buildLimit");
+        const username =
+        document
+        .getElementById("username")
+        .value;
 
- const aiQuickText =
-  document.getElementById("aiQuickText");
+        const password =
+        document
+        .getElementById("password")
+        .value;
 
+        const data =
+        await api(
+            "/api/login",
+            {
+                method:"POST",
 
- if(isPro){
+                body:JSON.stringify({
+                    username,
+                    password
+                })
+            }
+        );
 
-  badge.innerText =
-   "👑 PRO";
+        token =
+        data.token;
 
-  badge.classList.add(
-   "proBadge"
-  );
+        localStorage.setItem(
+            "webzo_token",
+            token
+        );
 
-  planText.innerText =
-   "PRO";
+        showUser(data.user);
 
-  buildLimit.innerText =
-   "PRO • UNLIMITED";
+    }
+    catch(e){
 
-  aiQuickText.innerText =
-   "فعال";
+        document
+        .getElementById("authMsg")
+        .innerHTML =
+        "<span class='error'>"+
+        e.message+
+        "</span>";
 
- }else{
-
-  badge.innerText =
-   "FREE";
-
-  badge.classList.remove(
-   "proBadge"
-  );
-
-  planText.innerText =
-   "FREE";
-
-  buildLimit.innerText =
-   "FREE • 1/DAY";
-
-  aiQuickText.innerText =
-   "فقط Pro";
-
- }
+    }
 
 }
 
 
-/* =========================================================
-   DAILY
-========================================================= */
+/* SHOW USER */
 
-function getDaily(){
+function showUser(user){
 
- const today =
-  new Date().toDateString();
+    document
+    .getElementById("auth")
+    .classList
+    .add("hidden");
 
- const savedDate =
-  localStorage.getItem(
-   "webzoDate"
-  );
+    document
+    .getElementById("userPanel")
+    .classList
+    .remove("hidden");
 
- if(savedDate !== today){
+    document
+    .getElementById("userId")
+    .innerText =
+    user.id;
 
-  localStorage.setItem(
-   "webzoDate",
-   today
-  );
+    if(user.pro){
 
-  localStorage.setItem(
-   "webzoDaily",
-   "0"
-  );
+        document
+        .getElementById("status")
+        .innerHTML =
+        "<span class='pro'>👑 Pro فعال</span>";
 
-  return 0;
- }
+        document
+        .getElementById("aiStatus")
+        .innerText =
+        "👑 Pro فعال است؛ می‌توانی از AI استفاده کنی.";
 
- return Number(
-  localStorage.getItem(
-   "webzoDaily"
-  ) || 0
- );
+    }
 
-}
-
-
-function updateStats(){
-
- document.getElementById(
-  "daily"
- ).innerText =
-  isPro
-   ? "∞"
-   : getDaily()+"/1";
-
-
- const projects =
-  JSON.parse(
-   localStorage.getItem(
-    "webzoProjects"
-   ) || "[]"
-  );
-
-
- document.getElementById(
-  "projectCount"
- ).innerText =
-  projects.length;
+    loadPayment();
 
 }
 
 
-/* =========================================================
-   BUILD SITE
-========================================================= */
+/* PAYMENT */
 
-function buildSite(){
+async function loadPayment(){
 
- const idea =
-  document
-   .getElementById("idea")
-   .value
-   .trim();
+    try{
 
- const style =
-  document
-   .getElementById("style")
-   .value;
+        const data =
+        await api("/api/payment");
 
- const color =
-  document
-   .getElementById("color")
-   .value;
+        document
+        .getElementById("card")
+        .innerText =
+        data.card;
 
+        document
+        .getElementById("telegram")
+        .innerText =
+        data.telegram;
 
- if(!idea){
+    }
+    catch(e){
 
-  alert(
-   "اول ایده سایتت رو بنویس 😎"
-  );
+        console.log(e);
 
-  return;
-
- }
-
-
- if(!isPro){
-
-  const daily =
-   getDaily();
-
-  if(daily >= 1){
-
-   openPro();
-
-   return;
-
-  }
-
-  localStorage.setItem(
-   "webzoDaily",
-   String(daily + 1)
-  );
-
- }
-
-
- updateStats();
-
-
- document.getElementById(
-  "building"
- ).style.display =
-  "block";
-
-
- document.getElementById(
-  "result"
- ).style.display =
-  "none";
-
-
- const steps = [
-
-  "در حال تحلیل ایده...",
-
-  "در حال طراحی رابط کاربری...",
-
-  "در حال ساخت ساختار سایت...",
-
-  "در حال انتخاب رنگ‌ها...",
-
-  "در حال آماده‌سازی سایت...",
-
-  "ساخت سایت کامل شد ⚡"
-
- ];
-
-
- let i = 0;
-
-
- const timer =
-  setInterval(()=>{
-
-   document.getElementById(
-    "loadingText"
-   ).innerText =
-    steps[i];
-
-
-   i++;
-
-
-   if(i >= steps.length){
-
-    clearInterval(timer);
-
-
-    setTimeout(()=>{
-
-     document.getElementById(
-      "building"
-     ).style.display =
-      "none";
-
-
-     createSite(
-      idea,
-      style,
-      color
-     );
-
-    },400);
-
-   }
-
-  },450);
+    }
 
 }
 
 
-/* =========================================================
-   CREATE
-========================================================= */
+/* AI */
 
-function createSite(
- idea,
- style,
- color
+async function askAI(){
+
+    try{
+
+        document
+        .getElementById("aiMsg")
+        .innerText =
+        "در حال پردازش...";
+
+        const message =
+        document
+        .getElementById("question")
+        .value;
+
+        const data =
+        await api(
+            "/api/ai",
+            {
+                method:"POST",
+
+                body:JSON.stringify({
+                    message
+                })
+            }
+        );
+
+        document
+        .getElementById("aiMsg")
+        .innerHTML =
+        "<span class='success'>آماده شد ✅</span>";
+
+        document
+        .getElementById("answer")
+        .innerText =
+        data.answer;
+
+    }
+    catch(e){
+
+        document
+        .getElementById("aiMsg")
+        .innerHTML =
+        "<span class='error'>"+
+        e.message+
+        "</span>";
+
+    }
+
+}
+
+
+/* LOGOUT */
+
+function logout(){
+
+    localStorage.removeItem(
+        "webzo_token"
+    );
+
+    location.reload();
+
+}
+
+
+/* OWNER */
+
+function showOwner(){
+
+    document
+    .getElementById("auth")
+    .classList
+    .add("hidden");
+
+    document
+    .getElementById("userPanel")
+    .classList
+    .add("hidden");
+
+    document
+    .getElementById("ownerPanel")
+    .classList
+    .remove("hidden");
+
+}
+
+
+/* OWNER LOGIN */
+
+async function ownerLogin(){
+
+    try{
+
+        const password =
+        document
+        .getElementById("ownerPassword")
+        .value;
+
+        const response =
+        await fetch(
+            "/api/owner/login",
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+
+                body:JSON.stringify({
+                    password
+                })
+            }
+        );
+
+        const data =
+        await response.json();
+
+        if(!response.ok){
+
+            throw new Error(
+                data.error
+            );
+
+        }
+
+        ownerToken =
+        data.token;
+
+        localStorage.setItem(
+            "webzo_owner",
+            ownerToken
+        );
+
+        document
+        .getElementById("ownerMsg")
+        .innerHTML =
+        "<span class='success'>ورود موفق بود ✅</span>";
+
+    }
+    catch(e){
+
+        document
+        .getElementById("ownerMsg")
+        .innerHTML =
+        "<span class='error'>"+
+        e.message+
+        "</span>";
+
+    }
+
+}
+
+
+/* OWNER API */
+
+async function ownerApi(
+url,
+options={}
 ){
 
- currentProject = {
+    options.headers = {
 
-  id:Date.now(),
+        "Content-Type":
+        "application/json",
 
-  idea,
+        "Authorization":
+        "Bearer " + ownerToken
 
-  style,
+    };
 
-  color,
+    const response =
+    await fetch(url,options);
 
-  title:
-   idea.length > 45
-    ? idea.substring(0,45)+"..."
-    : idea,
+    const data =
+    await response.json();
 
-  description:
-   "یک سایت "+
-   style+
-   " ساخته‌شده با Webzo.",
+    if(!response.ok){
 
-  about:
-   "این سایت با Webzo ساخته شده است."
+        throw new Error(
+            data.error
+        );
 
- };
-
-
- document.getElementById(
-  "pTitle"
- ).innerText =
-  currentProject.title;
-
-
- document.getElementById(
-  "pDesc"
- ).innerText =
-  currentProject.description;
-
-
- document.getElementById(
-  "pAbout"
- ).innerText =
-  currentProject.about;
-
-
- applyColor(color);
-
-
- document.getElementById(
-  "result"
- ).style.display =
-  "block";
-
-
- document.getElementById(
-  "result"
- ).scrollIntoView({
-  behavior:"smooth"
- });
-
-}
-
-
-/* =========================================================
-   COLOR
-========================================================= */
-
-function applyColor(colorName){
-
- let color =
-  "#00aaff";
-
- if(colorName.includes("بنفش"))
-  color = "#784cff";
-
- if(colorName.includes("قرمز"))
-  color = "#ff334f";
-
- if(colorName.includes("سبز"))
-  color = "#21e68a";
-
-
- document.getElementById(
-  "pLogo"
- ).style.color =
-  color;
-
-
- document.getElementById(
-  "pButton"
- ).style.background =
-  `linear-gradient(90deg,${color},#ff1493)`;
-
-}
-
-
-/* =========================================================
-   EDITOR
-========================================================= */
-
-function openEditor(){
-
- if(!currentProject){
-
-  alert(
-   "اول یک سایت بساز."
-  );
-
-  return;
-
- }
-
-
- document.getElementById(
-  "editor"
- ).style.display =
-  "block";
-
-
- document.getElementById(
-  "editorPreview"
- ).innerHTML =
-  document.getElementById(
-   "preview"
-  ).outerHTML;
-
-
- document.getElementById(
-  "editor"
- ).scrollIntoView({
-  behavior:"smooth"
- });
-
-}
-
-
-function editTitle(){
-
- if(!currentProject)
-  return;
-
-
- const text =
-  prompt(
-   "عنوان جدید سایت را وارد کن:",
-   currentProject.title
-  );
-
-
- if(text){
-
-  currentProject.title =
-   text;
-
-
-  document.getElementById(
-   "pTitle"
-  ).innerText =
-   text;
-
-
-  refreshEditor();
-
- }
-
-}
-
-
-function changeColor(){
-
- if(!currentProject)
-  return;
-
-
- const color =
-  prompt(
-   "کد HEX رنگ را وارد کن:",
-   "#00aaff"
-  );
-
-
- if(!color)
-  return;
-
-
- document.getElementById(
-  "pButton"
- ).style.background =
-  `linear-gradient(90deg,${color},#ff1493)`;
-
-
- document.getElementById(
-  "pLogo"
- ).style.color =
-  color;
-
-
- currentProject.customColor =
-  color;
-
-
- refreshEditor();
-
-}
-
-
-function refreshEditor(){
-
- document.getElementById(
-  "editorPreview"
- ).innerHTML =
-  document.getElementById(
-   "preview"
-  ).outerHTML;
-
-}
-
-
-/* =========================================================
-   PRO FEATURES
-========================================================= */
-
-function proFeature(name){
-
- if(!isPro){
-
-  alert(
-   "👑 "+name+
-   "\n\nاین قابلیت فقط برای Webzo Pro است."
-  );
-
-  openPro();
-
-  return;
-
- }
-
- alert(
-  "👑 "+name+
-  "\n\nاین ابزار در مرحله بعدی به ویرایشگر حرفه‌ای متصل می‌شود."
- );
-
-}
-
-
-/* =========================================================
-   SAVE
-========================================================= */
-
-function saveProject(){
-
- if(!currentProject){
-
-  alert(
-   "اول یک سایت بساز."
-  );
-
-  return;
-
- }
-
-
- let projects =
-  JSON.parse(
-   localStorage.getItem(
-    "webzoProjects"
-   ) || "[]"
-  );
-
-
- const index =
-  projects.findIndex(
-   x =>
-    x.id ===
-    currentProject.id
-  );
-
-
- if(index >= 0){
-
-  projects[index] =
-   currentProject;
-
- }else{
-
-  projects.push(
-   currentProject
-  );
-
- }
-
-
- localStorage.setItem(
-  "webzoProjects",
-  JSON.stringify(projects)
- );
-
-
- updateStats();
-
-
- alert(
-  "💾 پروژه ذخیره شد!"
- );
-
-}
-
-
-/* =========================================================
-   PROJECTS
-========================================================= */
-
-function showProjects(){
-
- const projects =
-  JSON.parse(
-   localStorage.getItem(
-    "webzoProjects"
-   ) || "[]"
-  );
-
-
- if(!projects.length){
-
-  alert(
-   "🌐 سایت‌های من\n\n"+
-   "هنوز پروژه‌ای ذخیره نکردی."
-  );
-
-  return;
-
- }
-
-
- let text =
-  "🌐 پروژه‌های شما:\n\n";
-
-
- projects.forEach(
-  (p,i)=>{
-
-   text +=
-    (i+1)+
-    ". "+
-    p.title+
-    "\n";
-
-  }
- );
-
-
- alert(text);
-
-}
-
-
-/* =========================================================
-   AI OPEN
-========================================================= */
-
-function openAI(){
-
- if(!isPro){
-
-  openPro();
-
-  return;
-
- }
-
-
- document.getElementById(
-  "aiModal"
- ).style.display =
-  "flex";
-
-}
-
-
-/* =========================================================
-   REAL AI
-========================================================= */
-
-async function generateAI(){
-
- if(!isPro){
-
-  openPro();
-
-  return;
-
- }
-
-
- const input =
-  document
-   .getElementById(
-    "aiInput"
-   )
-   .value
-   .trim();
-
-
- if(!input){
-
-  alert(
-   "اول ایده‌ات رو بنویس 😎"
-  );
-
-  return;
-
- }
-
-
- const status =
-  document.getElementById(
-   "aiStatus"
-  );
-
-
- const result =
-  document.getElementById(
-   "aiResult"
-  );
-
-
- status.style.display =
-  "block";
-
- result.style.display =
-  "none";
-
-
- try{
-
-  const response =
-   await fetch(
-    "/api/ai",
-    {
-     method:"POST",
-
-     headers:{
-      "Content-Type":
-       "application/json"
-     },
-
-     body:JSON.stringify({
-      idea:input
-     })
     }
-   );
 
-
-  const data =
-   await response.json();
-
-
-  if(response.status === 403){
-
-   isPro = false;
-
-   updatePlanUI();
-
-   closeModal("aiModal");
-
-   openPro();
-
-   return;
-
-  }
-
-
-  if(!response.ok){
-
-   throw new Error(
-    data.error ||
-    "AI Error"
-   );
-
-  }
-
-
-  result.innerText =
-   data.result;
-
-
-  result.style.display =
-   "block";
-
-
- }catch(error){
-
-  result.innerText =
-   "❌ خطا:\n"+
-   error.message;
-
-
-  result.style.display =
-   "block";
-
- }finally{
-
-  status.style.display =
-   "none";
-
- }
+    return data;
 
 }
 
 
-/* =========================================================
-   PRO
-========================================================= */
+/* FIND USER */
 
-function openPro(){
+async function findUser(){
 
- document.getElementById(
-  "proModal"
- ).style.display =
-  "flex";
+    try{
 
-}
+        const id =
+        document
+        .getElementById("ownerUserId")
+        .value;
 
+        const data =
+        await ownerApi(
+            "/api/owner/user/"+id
+        );
 
-function showProActivation(){
+        document
+        .getElementById("ownerUser")
+        .innerHTML =
 
- document.getElementById(
-  "proActivation"
- ).style.display =
-  "block";
+        "<b>"+
+        data.username+
+        "</b><br>"+
+        data.id+
+        "<br>"+
+        (
+            data.pro
+            ?
+            "👑 Pro فعال"
+            :
+            "Free 🔒"
+        );
 
-}
-
-
-async function activatePro(){
-
- const code =
-  document
-   .getElementById(
-    "proCode"
-   )
-   .value
-   .trim();
-
-
- if(!code){
-
-  alert(
-   "کد Pro را وارد کن."
-  );
-
-  return;
-
- }
-
-
- try{
-
-  const response =
-   await fetch(
-    "/api/pro/activate",
-    {
-     method:"POST",
-
-     headers:{
-      "Content-Type":
-       "application/json"
-     },
-
-     body:JSON.stringify({
-      code
-     })
     }
-   );
+    catch(e){
 
+        document
+        .getElementById("ownerUser")
+        .innerText =
+        e.message;
 
-  const data =
-   await response.json();
-
-
-  if(!response.ok){
-
-   throw new Error(
-    data.error ||
-    "Activation failed"
-   );
-
-  }
-
-
-  isPro = true;
-
-  updatePlanUI();
-
-  updateStats();
-
-  closeModal("proModal");
-
-  alert(
-   "👑 Webzo Pro فعال شد!"
-  );
-
-
- }catch(error){
-
-  alert(
-   "❌ "+
-   error.message
-  );
-
- }
+    }
 
 }
 
 
-/* =========================================================
-   MODALS
-========================================================= */
+/* ACTIVATE PRO */
 
-function closeModal(id){
+async function activatePro(days){
 
- document.getElementById(
-  id
- ).style.display =
-  "none";
+    try{
+
+        const id =
+        document
+        .getElementById("ownerUserId")
+        .value;
+
+        const data =
+        await ownerApi(
+            "/api/owner/pro",
+            {
+                method:"POST",
+
+                body:JSON.stringify({
+
+                    userId:id,
+
+                    days:days
+
+                })
+            }
+        );
+
+        document
+        .getElementById("ownerMsg")
+        .innerHTML =
+
+        "<span class='success'>"+
+        "👑 Pro فعال شد تا "+
+        new Date(
+            data.proUntil
+        ).toLocaleString("fa-IR")+
+        "</span>";
+
+    }
+    catch(e){
+
+        document
+        .getElementById("ownerMsg")
+        .innerText =
+        e.message;
+
+    }
 
 }
 
 
-/* =========================================================
-   NAV
-========================================================= */
+/* REVOKE */
 
-function goCreate(){
+async function revokePro(){
 
- document.getElementById(
-  "create"
- ).scrollIntoView({
-  behavior:"smooth"
- });
+    try{
+
+        const id =
+        document
+        .getElementById("ownerUserId")
+        .value;
+
+        await ownerApi(
+            "/api/owner/revoke",
+            {
+                method:"POST",
+
+                body:JSON.stringify({
+                    userId:id
+                })
+            }
+        );
+
+        document
+        .getElementById("ownerMsg")
+        .innerHTML =
+        "<span class='success'>Pro لغو شد.</span>";
+
+    }
+    catch(e){
+
+        document
+        .getElementById("ownerMsg")
+        .innerText =
+        e.message;
+
+    }
 
 }
 
 
-function home(){
+/* AUTO LOGIN */
 
- window.scrollTo({
-  top:0,
-  behavior:"smooth"
- });
+(async()=>{
 
-}
+    if(!token)
+    return;
 
+    try{
 
-/* =========================================================
-   START
-========================================================= */
+        const user =
+        await api("/api/me");
 
-loadPlan().then(()=>{
- updateStats();
-});
+        showUser(user);
+
+    }
+    catch{
+
+        localStorage.removeItem(
+            "webzo_token"
+        );
+
+    }
+
+})();
 
 </script>
 
 </body>
+
 </html>
