@@ -5,7 +5,11 @@ const { Pool } = require("pg");
 
 const app = express();
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
+
+/* =========================
+   CONFIG
+========================= */
 
 const PORT = process.env.PORT || 10000;
 
@@ -15,10 +19,20 @@ const OWNER_PASSWORD =
 const DATABASE_URL =
   process.env.DATABASE_URL;
 
+const OPENAI_API_KEY =
+  process.env.OPENAI_API_KEY;
+
+const OPENAI_MODEL =
+  process.env.OPENAI_MODEL || "gpt-5.6-luna";
+
 if (!DATABASE_URL) {
   console.error("DATABASE_URL تنظیم نشده است.");
   process.exit(1);
 }
+
+/* =========================
+   DATABASE
+========================= */
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
@@ -27,8 +41,9 @@ const pool = new Pool({
   }
 });
 
-
-/* اتصال و ساخت جدول */
+/* =========================
+   DATABASE INIT
+========================= */
 
 async function initDatabase() {
 
@@ -45,8 +60,9 @@ async function initDatabase() {
   console.log("Database ready.");
 }
 
-
-/* ابزارها */
+/* =========================
+   HELPERS
+========================= */
 
 function createId() {
 
@@ -60,7 +76,6 @@ function createId() {
 
 }
 
-
 function createToken() {
 
   return crypto
@@ -69,16 +84,125 @@ function createToken() {
 
 }
 
-
 function getToken(req) {
 
-  return req.headers.authorization
-    ?.replace("Bearer ", "");
+  const header =
+    req.headers.authorization || "";
+
+  if (!header.startsWith("Bearer ")) {
+    return null;
+  }
+
+  return header.substring(7).trim();
 
 }
 
+function isProDate(proUntil) {
 
-/* صفحه اصلی */
+  if (!proUntil) {
+    return false;
+  }
+
+  return new Date(proUntil) > new Date();
+
+}
+
+function publicUser(user) {
+
+  return {
+    id: user.id,
+    username: user.username,
+    pro: isProDate(user.pro_until),
+    proUntil: user.pro_until || null
+  };
+
+}
+
+/* =========================
+   AUTH MIDDLEWARE
+========================= */
+
+async function userAuth(req, res, next) {
+
+  try {
+
+    const token = getToken(req);
+
+    if (!token) {
+
+      return res.status(401).json({
+        error: "وارد حساب نشده‌اید."
+      });
+
+    }
+
+    const result =
+      await pool.query(
+        `
+        SELECT
+          id,
+          username,
+          pro_until
+        FROM users
+        WHERE token = $1
+        LIMIT 1
+        `,
+        [token]
+      );
+
+    if (result.rows.length === 0) {
+
+      return res.status(401).json({
+        error: "جلسه ورود معتبر نیست."
+      });
+
+    }
+
+    req.user = result.rows[0];
+
+    next();
+
+  } catch (error) {
+
+    console.error("USER AUTH ERROR:", error);
+
+    res.status(500).json({
+      error: "خطا در احراز هویت."
+    });
+
+  }
+
+}
+
+/* =========================
+   OWNER AUTH
+========================= */
+
+let ownerToken = null;
+
+function ownerAuth(req, res, next) {
+
+  const token = getToken(req);
+
+  if (
+    !token ||
+    !ownerToken ||
+    token !== ownerToken
+  ) {
+
+    return res.status(403).json({
+      error: "دسترسی غیرمجاز."
+    });
+
+  }
+
+  next();
+
+}
+
+/* =========================
+   HOME
+========================= */
 
 app.get("/", (req, res) => {
 
@@ -88,8 +212,23 @@ app.get("/", (req, res) => {
 
 });
 
+/* =========================
+   HEALTH
+========================= */
 
-/* ثبت نام */
+app.get("/api/health", (req, res) => {
+
+  res.json({
+    status: "Webzo is running",
+    database: "connected",
+    ai: Boolean(OPENAI_API_KEY)
+  });
+
+});
+
+/* =========================
+   REGISTER
+========================= */
 
 app.post(
   "/api/register",
@@ -111,7 +250,16 @@ app.post(
 
         return res.status(400).json({
           error:
-            "نام کاربری حداقل ۳ حرف باشد."
+            "نام کاربری حداقل ۳ کاراکتر باشد."
+        });
+
+      }
+
+      if (username.length > 50) {
+
+        return res.status(400).json({
+          error:
+            "نام کاربری بیش از حد طولانی است."
         });
 
       }
@@ -131,6 +279,7 @@ app.post(
           SELECT id
           FROM users
           WHERE LOWER(username) = LOWER($1)
+          LIMIT 1
           `,
           [username]
         );
@@ -144,23 +293,28 @@ app.post(
 
       }
 
-      const id =
-        createId();
+      const id = createId();
 
-      const token =
-        createToken();
+      const token = createToken();
 
       const hashedPassword =
         await bcrypt.hash(
           password,
-          10
+          12
         );
 
       await pool.query(
         `
         INSERT INTO users
-        (id, username, password, token, pro_until)
-        VALUES ($1, $2, $3, $4, NULL)
+        (
+          id,
+          username,
+          password,
+          token,
+          pro_until
+        )
+        VALUES
+        ($1, $2, $3, $4, NULL)
         `,
         [
           id,
@@ -179,7 +333,6 @@ app.post(
         user: {
 
           id,
-
           username,
 
           pro: false,
@@ -192,7 +345,10 @@ app.post(
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "REGISTER ERROR:",
+        error
+      );
 
       res.status(500).json({
         error:
@@ -204,8 +360,9 @@ app.post(
   }
 );
 
-
-/* ورود */
+/* =========================
+   LOGIN
+========================= */
 
 app.post(
   "/api/login",
@@ -222,6 +379,15 @@ app.post(
         String(
           req.body.password || ""
         );
+
+      if (!username || !password) {
+
+        return res.status(400).json({
+          error:
+            "نام کاربری و رمز عبور را وارد کنید."
+        });
+
+      }
 
       const result =
         await pool.query(
@@ -261,40 +427,22 @@ app.post(
 
       }
 
-      const isPro =
-        user.pro_until &&
-        new Date(
-          user.pro_until
-        ) > new Date();
-
       res.json({
 
         success: true,
 
-        token:
-          user.token,
+        token: user.token,
 
-        user: {
-
-          id:
-            user.id,
-
-          username:
-            user.username,
-
-          pro:
-            Boolean(isPro),
-
-          proUntil:
-            user.pro_until
-
-        }
+        user: publicUser(user)
 
       });
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "LOGIN ERROR:",
+        error
+      );
 
       res.status(500).json({
         error:
@@ -306,82 +454,62 @@ app.post(
   }
 );
 
-
-/* اطلاعات کاربر */
+/* =========================
+   ME
+========================= */
 
 app.get(
   "/api/me",
+  userAuth,
+  async (req, res) => {
+
+    res.json(
+      publicUser(req.user)
+    );
+
+  }
+);
+
+/* =========================
+   LOGOUT / TOKEN ROTATION
+========================= */
+
+app.post(
+  "/api/logout",
+  userAuth,
   async (req, res) => {
 
     try {
 
-      const token =
-        getToken(req);
+      const newToken =
+        createToken();
 
-      if (!token) {
-
-        return res.status(401).json({
-          error:
-            "وارد حساب نشده‌اید."
-        });
-
-      }
-
-      const result =
-        await pool.query(
-          `
-          SELECT
-            id,
-            username,
-            pro_until
-          FROM users
-          WHERE token = $1
-          LIMIT 1
-          `,
-          [token]
-        );
-
-      if (result.rows.length === 0) {
-
-        return res.status(401).json({
-          error:
-            "جلسه ورود معتبر نیست."
-        });
-
-      }
-
-      const user =
-        result.rows[0];
-
-      const isPro =
-        user.pro_until &&
-        new Date(
-          user.pro_until
-        ) > new Date();
+      await pool.query(
+        `
+        UPDATE users
+        SET token = $1
+        WHERE id = $2
+        `,
+        [
+          newToken,
+          req.user.id
+        ]
+      );
 
       res.json({
-
-        id:
-          user.id,
-
-        username:
-          user.username,
-
-        pro:
-          Boolean(isPro),
-
-        proUntil:
-          user.pro_until
-
+        success: true
       });
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "LOGOUT ERROR:",
+        error
+      );
 
       res.status(500).json({
         error:
-          "خطا در دریافت اطلاعات کاربر."
+          "خطا در خروج."
       });
 
     }
@@ -389,11 +517,226 @@ app.get(
   }
 );
 
+/* =========================
+   AI
+========================= */
 
-/* ورود مالک */
+app.post(
+  "/api/ai",
+  userAuth,
+  async (req, res) => {
 
-let ownerToken = null;
+    try {
 
+      /* فقط Pro */
+
+      if (!isProDate(req.user.pro_until)) {
+
+        return res.status(403).json({
+          error:
+            "برای استفاده از Webzo AI باید اشتراک Pro فعال داشته باشید."
+        });
+
+      }
+
+      if (!OPENAI_API_KEY) {
+
+        console.error(
+          "OPENAI_API_KEY is missing."
+        );
+
+        return res.status(503).json({
+          error:
+            "سرویس هوش مصنوعی هنوز روی سرور تنظیم نشده است."
+        });
+
+      }
+
+      const message =
+        String(
+          req.body.message || ""
+        ).trim();
+
+      if (!message) {
+
+        return res.status(400).json({
+          error:
+            "پیام خالی است."
+        });
+
+      }
+
+      if (message.length > 8000) {
+
+        return res.status(400).json({
+          error:
+            "پیام بیش از حد طولانی است."
+        });
+
+      }
+
+      console.log(
+        `AI request from ${req.user.id}`
+      );
+
+      const controller =
+        new AbortController();
+
+      const timeout =
+        setTimeout(
+          () => controller.abort(),
+          60000
+        );
+
+      let response;
+
+      try {
+
+        response =
+          await fetch(
+            "https://api.openai.com/v1/responses",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                "Authorization":
+                  `Bearer ${OPENAI_API_KEY}`
+              },
+
+              body: JSON.stringify({
+
+                model:
+                  OPENAI_MODEL,
+
+                instructions:
+                  `
+تو Webzo AI هستی.
+یک دستیار هوش مصنوعی فارسی، دوستانه، دقیق و مفید باش.
+به زبان کاربر پاسخ بده.
+اگر کاربر فارسی صحبت کرد، فارسی پاسخ بده.
+پاسخ‌ها را واضح و قابل فهم ارائه کن.
+                `,
+
+                input: message,
+
+                max_output_tokens: 1200
+
+              }),
+
+              signal:
+                controller.signal
+
+            }
+          );
+
+      } finally {
+
+        clearTimeout(timeout);
+
+      }
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+
+        console.error(
+          "OPENAI ERROR:",
+          JSON.stringify(data)
+        );
+
+        return res.status(502).json({
+          error:
+            "ارتباط با سرویس هوش مصنوعی برقرار نشد."
+        });
+
+      }
+
+      let answer =
+        data.output_text;
+
+      /*
+        پشتیبان برای ساختارهای مختلف پاسخ
+      */
+
+      if (
+        !answer &&
+        Array.isArray(data.output)
+      ) {
+
+        answer =
+          data.output
+            .flatMap(
+              item =>
+                Array.isArray(item.content)
+                  ? item.content
+                  : []
+            )
+            .filter(
+              content =>
+                content.type ===
+                "output_text"
+            )
+            .map(
+              content =>
+                content.text
+            )
+            .join("\n");
+
+      }
+
+      if (!answer) {
+
+        return res.status(502).json({
+          error:
+            "پاسخ معتبری از هوش مصنوعی دریافت نشد."
+        });
+
+      }
+
+      res.json({
+
+        success: true,
+
+        answer: answer.trim()
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "AI ERROR:",
+        error
+      );
+
+      if (
+        error.name ===
+        "AbortError"
+      ) {
+
+        return res.status(504).json({
+          error:
+            "پاسخ AI بیش از حد طول کشید. دوباره امتحان کن."
+        });
+
+      }
+
+      res.status(500).json({
+        error:
+          "خطا در پردازش هوش مصنوعی."
+      });
+
+    }
+
+  }
+);
+
+/* =========================
+   OWNER LOGIN
+========================= */
 
 app.post(
   "/api/owner/login",
@@ -431,36 +774,9 @@ app.post(
   }
 );
 
-
-/* احراز هویت مالک */
-
-function ownerAuth(
-  req,
-  res,
-  next
-) {
-
-  const token =
-    getToken(req);
-
-  if (
-    !token ||
-    token !== ownerToken
-  ) {
-
-    return res.status(403).json({
-      error:
-        "دسترسی غیرمجاز."
-    });
-
-  }
-
-  next();
-
-}
-
-
-/* پیدا کردن کاربر */
+/* =========================
+   OWNER USER SEARCH
+========================= */
 
 app.get(
   "/api/owner/user/:id",
@@ -470,8 +786,9 @@ app.get(
     try {
 
       const id =
-        req.params.id
-          .toUpperCase();
+        String(
+          req.params.id || ""
+        ).trim().toUpperCase();
 
       const result =
         await pool.query(
@@ -496,34 +813,18 @@ app.get(
 
       }
 
-      const user =
-        result.rows[0];
-
-      const isPro =
-        user.pro_until &&
-        new Date(
-          user.pro_until
-        ) > new Date();
-
-      res.json({
-
-        id:
-          user.id,
-
-        username:
-          user.username,
-
-        pro:
-          Boolean(isPro),
-
-        proUntil:
-          user.pro_until
-
-      });
+      res.json(
+        publicUser(
+          result.rows[0]
+        )
+      );
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "OWNER SEARCH ERROR:",
+        error
+      );
 
       res.status(500).json({
         error:
@@ -535,8 +836,9 @@ app.get(
   }
 );
 
-
-/* فعال کردن Pro */
+/* =========================
+   OWNER ACTIVATE PRO
+========================= */
 
 app.post(
   "/api/owner/pro",
@@ -548,7 +850,7 @@ app.post(
       const id =
         String(
           req.body.userId || ""
-        ).toUpperCase();
+        ).trim().toUpperCase();
 
       const days =
         Number(
@@ -642,8 +944,7 @@ app.post(
 
         success: true,
 
-        id:
-          user.id,
+        id: user.id,
 
         proUntil:
           newProUntil.toISOString()
@@ -652,7 +953,10 @@ app.post(
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "ACTIVATE PRO ERROR:",
+        error
+      );
 
       res.status(500).json({
         error:
@@ -664,8 +968,9 @@ app.post(
   }
 );
 
-
-/* لغو Pro */
+/* =========================
+   OWNER REVOKE PRO
+========================= */
 
 app.post(
   "/api/owner/revoke",
@@ -677,7 +982,7 @@ app.post(
       const id =
         String(
           req.body.userId || ""
-        ).toUpperCase();
+        ).trim().toUpperCase();
 
       const result =
         await pool.query(
@@ -705,7 +1010,10 @@ app.post(
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "REVOKE PRO ERROR:",
+        error
+      );
 
       res.status(500).json({
         error:
@@ -717,41 +1025,131 @@ app.post(
   }
 );
 
-
-/* وضعیت سرور */
+/* =========================
+   OWNER STATUS
+========================= */
 
 app.get(
-  "/api/health",
+  "/api/owner/status",
+  ownerAuth,
+  async (req, res) => {
+
+    try {
+
+      const result =
+        await pool.query(
+          `
+          SELECT COUNT(*)::int AS count
+          FROM users
+          `
+        );
+
+      res.json({
+
+        success: true,
+
+        users:
+          result.rows[0].count,
+
+        ai:
+          Boolean(OPENAI_API_KEY),
+
+        database:
+          true
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "OWNER STATUS ERROR:",
+        error
+      );
+
+      res.status(500).json({
+        error:
+          "خطا در دریافت وضعیت سیستم."
+      });
+
+    }
+
+  }
+);
+
+/* =========================
+   404
+========================= */
+
+app.use(
   (req, res) => {
 
-    res.json({
-      status:
-        "Webzo is running"
+    if (
+      req.path.startsWith("/api/")
+    ) {
+
+      return res.status(404).json({
+        error:
+          "API endpoint پیدا نشد."
+      });
+
+    }
+
+    res.status(404).send(
+      "Webzo - Page Not Found"
+    );
+
+  }
+);
+
+/* =========================
+   GLOBAL ERROR
+========================= */
+
+app.use(
+  (error, req, res, next) => {
+
+    console.error(
+      "GLOBAL ERROR:",
+      error
+    );
+
+    res.status(500).json({
+      error:
+        "خطای داخلی سرور."
     });
 
   }
 );
 
+/* =========================
+   START
+========================= */
 
-/* شروع سرور */
+async function startServer() {
 
-initDatabase()
-  .then(() => {
+  try {
+
+    await initDatabase();
 
     app.listen(
       PORT,
       () => {
 
         console.log(
-          "Webzo running on port " +
-          PORT
+          `Webzo running on port ${PORT}`
+        );
+
+        console.log(
+          "AI:",
+          OPENAI_API_KEY
+            ? "CONFIGURED"
+            : "NOT CONFIGURED"
         );
 
       }
     );
 
-  })
-  .catch(error => {
+  } catch (error) {
 
     console.error(
       "Database initialization failed:",
@@ -760,4 +1158,8 @@ initDatabase()
 
     process.exit(1);
 
-  });
+  }
+
+}
+
+startServer();
